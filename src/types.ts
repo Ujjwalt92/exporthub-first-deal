@@ -232,6 +232,20 @@ export interface TeachingExtras {
   discrepancyPlaybookNote: string
 }
 
+export interface OnboardingItem {
+  id: string
+  label: string
+  detail: string
+  to: string
+  done: boolean
+}
+
+export interface OnboardingState {
+  seenWelcome: boolean
+  checklist: OnboardingItem[]
+  completedAt: string | null
+}
+
 export interface DealData {
   company: CompanyProfile
   companyName: string
@@ -281,6 +295,7 @@ export interface DealData {
   templates: EmailTemplate[]
   glossary: GlossaryTerm[]
   teaching: TeachingExtras
+  onboarding: OnboardingState
 }
 
 export interface AppState {

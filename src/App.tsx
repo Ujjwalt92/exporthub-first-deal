@@ -27,6 +27,8 @@ import { ChaChecklistPage } from './pages/ChaChecklistPage'
 import { BankDocsPage } from './pages/BankDocsPage'
 import { PostShipmentPage } from './pages/PostShipmentPage'
 import { BeginnerGuidePage } from './pages/BeginnerGuidePage'
+import { StartHerePage } from './pages/StartHerePage'
+import { CompletionReportPage } from './pages/CompletionReportPage'
 
 export default function App() {
   return (
@@ -35,8 +37,10 @@ export default function App() {
         <Routes>
           <Route element={<AppShell />}>
             <Route index element={<HomePage />} />
+            <Route path="start-here" element={<StartHerePage />} />
             <Route path="beginner" element={<BeginnerGuidePage />} />
             <Route path="company" element={<CompanyPage />} />
+            <Route path="report" element={<CompletionReportPage />} />
             <Route path="rules" element={<RulesPage />} />
             <Route path="clarify" element={<ClarifyPage />} />
             <Route path="cost-sheet" element={<CostSheetPage />} />

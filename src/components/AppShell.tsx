@@ -21,6 +21,7 @@ import {
 import { useStore } from '../lib/StoreContext'
 import { computeCostSummary, dealProgress, stageLabel } from '../lib/costing'
 import { Badge } from './ui'
+import { WelcomeGate } from './WelcomeGate'
 
 const groups: { title: string; items: { to: string; label: string; icon: typeof LayoutDashboard; end?: boolean }[] }[] =
   [
@@ -28,8 +29,10 @@ const groups: { title: string; items: { to: string; label: string; icon: typeof 
       title: 'Start',
       items: [
         { to: '/', label: 'Deal Cockpit', icon: LayoutDashboard, end: true },
+        { to: '/start-here', label: 'Start Here', icon: BookOpen },
         { to: '/beginner', label: 'Absolute Beginner', icon: HelpCircle },
         { to: '/company', label: 'Company Setup', icon: Building2 },
+        { to: '/report', label: 'Completion Report', icon: FileSpreadsheet },
         { to: '/lesson', label: 'Today’s Lesson', icon: BookOpen },
         { to: '/help', label: 'Help / Glossary', icon: HelpCircle },
       ],
@@ -84,6 +87,7 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
+      <WelcomeGate />
       <div className="no-print flex min-h-screen">
         <aside className="hidden w-72 shrink-0 overflow-y-auto border-r border-slate-200 bg-white lg:flex lg:flex-col">
           <div className="border-b border-slate-200 px-5 py-5">

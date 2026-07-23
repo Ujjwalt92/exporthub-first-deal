@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useRef } from 'react'
 import { ArrowRight, CheckCircle2, Circle, Mail, ShieldAlert } from 'lucide-react'
 import { useStore } from '../lib/StoreContext'
 import { computeCostSummary, dealProgress, inr, stageLabel, usd } from '../lib/costing'
@@ -19,10 +20,13 @@ const flow: { to: string; label: string; hint: string }[] = [
 ]
 
 export function HomePage() {
-  const { deal, resetDeal } = useStore()
+  const { deal, resetDeal, exportDealJson, importDealJson } = useStore()
   const summary = computeCostSummary(deal)
   const progress = dealProgress(deal)
   const answered = deal.clarifying.filter((q) => q.answered).length
+  const fileRef = useRef<HTMLInputElement>(null)
+  const onboardingDone = !!deal.onboarding.completedAt
+  const onboardingProgress = deal.onboarding.checklist.filter((i) => i.done).length
 
   return (
     <div>
@@ -31,12 +35,42 @@ export function HomePage() {
         subtitle="एक live Teja S17 export deal — नए trader को process सिखाती है, experienced trader को checklist + cost discipline देती है।"
         actions={
           <div className="flex flex-wrap gap-2">
-            <Link to="/beginner">
-              <Button>Absolute Beginner Guide</Button>
+            <Link to="/start-here">
+              <Button>Start Here</Button>
             </Link>
-            <Link to="/help">
-              <Button variant="secondary">Help / Glossary</Button>
+            <Link to="/report">
+              <Button variant="secondary">Completion Report</Button>
             </Link>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                const blob = new Blob([exportDealJson()], { type: 'application/json' })
+                const url = URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                a.download = `exporthub-backup.json`
+                a.click()
+                URL.revokeObjectURL(url)
+              }}
+            >
+              Export backup
+            </Button>
+            <Button variant="secondary" onClick={() => fileRef.current?.click()}>
+              Import backup
+            </Button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                const text = await file.text()
+                const result = importDealJson(text)
+                alert(result.ok ? 'Backup imported' : result.error)
+              }}
+            />
             <Button variant="secondary" onClick={() => confirm('Reset playbook demo data?') && resetDeal()}>
               Reset deal
             </Button>
@@ -44,16 +78,21 @@ export function HomePage() {
         }
       />
 
-      <Card className="mb-6 border-sky-200 bg-sky-50 p-5 text-sm leading-7 text-sky-950">
-        <div className="font-semibold">New to export? Start here before the deal flow.</div>
+      <Card className="mb-6 border-teal-200 bg-teal-50 p-5 text-sm leading-7 text-teal-950">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="font-semibold">
+            {onboardingDone
+              ? 'Onboarding complete — playbook ready at 100% path'
+              : `Start Here onboarding: ${onboardingProgress}/${deal.onboarding.checklist.length}`}
+          </div>
+          <Badge tone={onboardingDone ? 'green' : 'amber'}>
+            {onboardingDone ? 'Ready' : 'Do this first'}
+          </Badge>
+        </div>
         <p className="mt-2">
-          CHA क्या होता है, freight forwarder कौन होता है (ये flight नहीं — समुद्री shipment के लिए sea
-          forwarder), Guntur में vendor कैसे ढूँढें, बैंक में किससे मिलें, और हर चीज़ का rough खर्चा क्या
-          होता है — सब{' '}
-          <Link className="font-semibold underline" to="/beginner">
-            Absolute Beginner Guide
-          </Link>{' '}
-          में plain English/Hinglish में है। हर stage पर छोटा beginner box भी मिलेगा।
+          New person: pehle <Link className="font-semibold underline" to="/start-here">Start Here</Link> +{' '}
+          <Link className="font-semibold underline" to="/beginner">Absolute Beginner</Link>. Experienced
+          person: directly cost sheet / LC flow.
         </p>
       </Card>
 

@@ -18,7 +18,7 @@ import type {
 } from '../types'
 import { computeCostSummary } from './costing'
 
-const STORAGE_KEY = 'exporthub-first-deal-v4'
+const STORAGE_KEY = 'exporthub-first-deal-v5'
 
 interface Store {
   deal: DealData
@@ -43,6 +43,11 @@ interface Store {
   updateChaTask: (id: string, patch: Partial<TaskItem>) => void
   updateBankDoc: (id: string, patch: Partial<DealData['teaching']['bankDocMatches'][number]>) => void
   updateIncentive: (id: string, patch: Partial<DealData['teaching']['incentives'][number]>) => void
+  updateOnboardingItem: (id: string, done: boolean) => void
+  markWelcomeSeen: () => void
+  completeOnboarding: () => void
+  exportDealJson: () => string
+  importDealJson: (raw: string) => { ok: true } | { ok: false; error: string }
   applySuggestedUnitPrice: () => void
   markLcCleared: () => void
   confirmVendor: () => void
@@ -98,6 +103,11 @@ function load(): DealData {
         chaChecklist: parsed.teaching?.chaChecklist ?? base.teaching.chaChecklist,
         bankDocMatches: parsed.teaching?.bankDocMatches ?? base.teaching.bankDocMatches,
         incentives: parsed.teaching?.incentives ?? base.teaching.incentives,
+      },
+      onboarding: {
+        ...base.onboarding,
+        ...(parsed.onboarding ?? {}),
+        checklist: parsed.onboarding?.checklist ?? base.onboarding.checklist,
       },
     }
   } catch {
@@ -247,6 +257,87 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             incentives: d.teaching.incentives.map((i) => (i.id === id ? { ...i, ...patch } : i)),
           },
         })),
+      updateOnboardingItem: (id, done) =>
+        setDeal((d) => ({
+          ...d,
+          onboarding: {
+            ...d.onboarding,
+            checklist: d.onboarding.checklist.map((item) =>
+              item.id === id ? { ...item, done } : item,
+            ),
+          },
+        })),
+      markWelcomeSeen: () =>
+        setDeal((d) => ({
+          ...d,
+          onboarding: { ...d.onboarding, seenWelcome: true },
+        })),
+      completeOnboarding: () =>
+        setDeal((d) => ({
+          ...d,
+          onboarding: {
+            ...d.onboarding,
+            seenWelcome: true,
+            completedAt: new Date().toISOString(),
+            checklist: d.onboarding.checklist.map((item) => ({ ...item, done: true })),
+          },
+        })),
+      exportDealJson: () => JSON.stringify(deal, null, 2),
+      importDealJson: (raw) => {
+        try {
+          const parsed = JSON.parse(raw) as Partial<DealData>
+          if (!parsed || typeof parsed !== 'object') return { ok: false, error: 'Invalid JSON' }
+          const base = createInitialDeal()
+          const next: DealData = {
+            ...base,
+            ...parsed,
+            company: { ...base.company, ...(parsed.company ?? {}) },
+            clarifying: parsed.clarifying ?? base.clarifying,
+            costs: parsed.costs ?? base.costs,
+            rules: base.rules,
+            documents: parsed.documents ?? base.documents,
+            lcChecks: parsed.lcChecks ?? base.lcChecks,
+            vendor: { ...base.vendor, ...(parsed.vendor ?? {}) },
+            production: {
+              ...base.production,
+              ...(parsed.production ?? {}),
+              tasks: parsed.production?.tasks ?? base.production.tasks,
+            },
+            dispatch: { ...base.dispatch, ...(parsed.dispatch ?? {}) },
+            customs: {
+              ...base.customs,
+              ...(parsed.customs ?? {}),
+              tasks: parsed.customs?.tasks ?? base.customs.tasks,
+            },
+            vessel: { ...base.vessel, ...(parsed.vessel ?? {}) },
+            payment: {
+              ...base.payment,
+              ...(parsed.payment ?? {}),
+              tasks: parsed.payment?.tasks ?? base.payment.tasks,
+            },
+            templates: base.templates,
+            glossary: base.glossary,
+            teaching: {
+              ...base.teaching,
+              ...(parsed.teaching ?? {}),
+              qualitySpecs: parsed.teaching?.qualitySpecs ?? base.teaching.qualitySpecs,
+              chaChecklist: parsed.teaching?.chaChecklist ?? base.teaching.chaChecklist,
+              bankDocMatches: parsed.teaching?.bankDocMatches ?? base.teaching.bankDocMatches,
+              incentives: parsed.teaching?.incentives ?? base.teaching.incentives,
+            },
+            onboarding: {
+              ...base.onboarding,
+              ...(parsed.onboarding ?? {}),
+              checklist: parsed.onboarding?.checklist ?? base.onboarding.checklist,
+            },
+          }
+          setDeal(next)
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+          return { ok: true }
+        } catch (e) {
+          return { ok: false, error: e instanceof Error ? e.message : 'Failed to import' }
+        }
+      },
       applySuggestedUnitPrice: () =>
         setDeal((d) => {
           const summary = computeCostSummary(d)

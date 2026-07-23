@@ -17,6 +17,7 @@ import type {
   VesselState,
 } from '../types'
 import { createTeachingExtras } from './teaching'
+import { createOnboardingState } from './onboarding'
 
 export const PLAYBOOK_RULES: PlaybookRule[] = [
   {
@@ -829,5 +830,6 @@ export function createInitialDeal(): DealData {
     templates: EMAIL_TEMPLATES,
     glossary: GLOSSARY,
     teaching: createTeachingExtras(),
+    onboarding: createOnboardingState(),
   }
 }

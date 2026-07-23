@@ -38,7 +38,17 @@ Not a generic ERP — a live guided deal for:
 - **Email Templates + Help/Glossary + Rules/Lesson**
 
 ## Absolute beginners
-Open **Absolute Beginner Guide** first:
+1. First open shows a **Welcome gate**
+2. Complete **Start Here** checklist + first-call scripts
+3. Read **Absolute Beginner Guide** (who/where/costing/myths)
+4. Then run the live UAE Teja deal
+
+Also includes:
+- Completion Report (print + lessons)
+- Deal backup Export/Import JSON
+
+## Absolute beginners (detail)
+Open **Absolute Beginner Guide**:
 - Who to meet (CHA, freight forwarder, vendor, bank, phyto, chamber…)
 - Where/how to find them
 - What to ask in first meeting
