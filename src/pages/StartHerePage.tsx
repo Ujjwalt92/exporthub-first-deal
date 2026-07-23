@@ -72,7 +72,7 @@ export function StartHerePage() {
       <div className="mb-3 text-sm font-semibold text-slate-900">First-call / WhatsApp scripts</div>
       <div className="grid gap-4 lg:grid-cols-2">
         {FIRST_CALL_SCRIPTS.map((s) => {
-          const text = s.script.replaceAll('{{company}}', deal.company.legalName || deal.companyName)
+          const text = s.script.split('{{company}}').join(deal.company.legalName || deal.companyName)
           return (
             <Card key={s.id} className="p-5">
               <div className="text-sm font-semibold">{s.title}</div>
