@@ -8,7 +8,9 @@ const flow: { stage: string; to: string; label: string }[] = [
   { stage: 'clarify', to: '/clarify', label: 'Buyer clarify' },
   { stage: 'costing', to: '/cost-sheet', label: 'Cost sheet' },
   { stage: 'proforma', to: '/proforma', label: 'Proforma Invoice' },
-  { stage: 'po_lc', to: '/documents', label: 'PO / LC / Docs' },
+  { stage: 'po_lc', to: '/po-lc', label: 'PO / LC review' },
+  { stage: 'vendor', to: '/vendor', label: 'Vendor confirm' },
+  { stage: 'docs', to: '/documents', label: 'Document map' },
 ]
 
 export function HomePage() {
@@ -72,7 +74,7 @@ export function HomePage() {
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {flow.map((step, idx) => (
           <Card key={step.to} className="p-5">
             <div className="text-xs font-medium text-slate-500">Step {idx + 1}</div>
@@ -81,7 +83,13 @@ export function HomePage() {
               <Button
                 variant="secondary"
                 onClick={() => {
-                  if (step.stage === 'clarify' || step.stage === 'costing' || step.stage === 'proforma') {
+                  if (
+                    step.stage === 'clarify' ||
+                    step.stage === 'costing' ||
+                    step.stage === 'proforma' ||
+                    step.stage === 'po_lc' ||
+                    step.stage === 'vendor'
+                  ) {
                     setStage(step.stage as typeof deal.stage)
                   }
                 }}

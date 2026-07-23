@@ -50,6 +50,18 @@ export function LessonPage() {
               — unit price तभी जब costing complete हो
             </li>
             <li>
+              <Link className="font-medium text-teal-700 hover:underline" to="/po-lc">
+                PO / LC Review
+              </Link>{' '}
+              — Rule 5 checklist; mismatch हो तो amendment
+            </li>
+            <li>
+              <Link className="font-medium text-teal-700 hover:underline" to="/vendor">
+                Vendor Confirm
+              </Link>{' '}
+              — Guntur supplier firm order (LC clear के बाद)
+            </li>
+            <li>
               <Link className="font-medium text-teal-700 hover:underline" to="/documents">
                 Document Map
               </Link>{' '}
@@ -67,9 +79,25 @@ export function LessonPage() {
             <strong>{summary.canSendFinalPrice ? 'Yes' : 'No'}</strong>
             <br />
             PI unit price locked? <strong>{deal.unitPriceUsd ? `USD ${deal.unitPriceUsd}/kg` : 'Not yet'}</strong>
+            <br />
+            LC cleared for production? <strong>{deal.lcClearedForProduction ? 'Yes' : 'No'}</strong>
+            <br />
+            Vendor confirmed? <strong>{deal.vendor.confirmed ? 'Yes' : 'No'}</strong>
           </p>
           <div className="mt-4">
-            <Link to={summary.clarifyingDone ? '/cost-sheet' : '/clarify'}>
+            <Link
+              to={
+                !summary.clarifyingDone
+                  ? '/clarify'
+                  : !deal.unitPriceUsd
+                    ? '/cost-sheet'
+                    : !deal.lcClearedForProduction
+                      ? '/po-lc'
+                      : !deal.vendor.confirmed
+                        ? '/vendor'
+                        : '/documents'
+              }
+            >
               <Button>Continue next step</Button>
             </Link>
           </div>

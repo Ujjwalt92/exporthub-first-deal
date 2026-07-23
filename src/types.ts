@@ -55,6 +55,33 @@ export interface DocumentNode {
   status: 'not_started' | 'in_progress' | 'ready' | 'received' | 'locked'
 }
 
+export type CheckStatus = 'unchecked' | 'match' | 'mismatch' | 'needs_amendment'
+
+export interface LcCheckItem {
+  id: string
+  label: string
+  expected: string
+  foundInLc: string
+  status: CheckStatus
+  note: string
+}
+
+export interface VendorOrder {
+  supplierName: string
+  supplierLocation: string
+  contactPerson: string
+  productSpec: string
+  quantityKg: number
+  rateInrPerKg: number | null
+  packing: string
+  deliveryLocation: string
+  readyByDate: string
+  paymentTermsToVendor: string
+  qualityNotes: string
+  confirmed: boolean
+  confirmationRef: string
+}
+
 export interface DealData {
   companyName: string
   buyerName: string
@@ -86,6 +113,13 @@ export interface DealData {
   piNumber: string
   piDate: string
   specialTestsNote: string
+  poNumber: string
+  poReceived: boolean
+  lcNumber: string
+  lcReceived: boolean
+  lcChecks: LcCheckItem[]
+  lcClearedForProduction: boolean
+  vendor: VendorOrder
 }
 
 export interface AppState {

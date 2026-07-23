@@ -1,4 +1,12 @@
-import type { ClarifyingQuestion, CostLine, DealData, DocumentNode, PlaybookRule } from '../types'
+import type {
+  ClarifyingQuestion,
+  CostLine,
+  DealData,
+  DocumentNode,
+  LcCheckItem,
+  PlaybookRule,
+  VendorOrder,
+} from '../types'
 
 export const PLAYBOOK_RULES: PlaybookRule[] = [
   {
@@ -334,6 +342,97 @@ export const DOCUMENTS: DocumentNode[] = [
   },
 ]
 
+export const LC_CHECKS: LcCheckItem[] = [
+  {
+    id: 'lc_beneficiary',
+    label: 'Beneficiary / seller name',
+    expected: "Tiwari's Spices International",
+    foundInLc: '',
+    status: 'unchecked',
+    note: '',
+  },
+  {
+    id: 'lc_applicant',
+    label: 'Applicant / buyer name',
+    expected: '[Buyer Name Placeholder]',
+    foundInLc: '',
+    status: 'unchecked',
+    note: '',
+  },
+  {
+    id: 'lc_product',
+    label: 'Product description',
+    expected: 'Teja S17 Stemless Super Deluxe Red Chilli',
+    foundInLc: '',
+    status: 'unchecked',
+    note: '',
+  },
+  {
+    id: 'lc_qty',
+    label: 'Quantity',
+    expected: '12,000 kg (1 × 20 ft / 480 × 25 kg PP bags)',
+    foundInLc: '',
+    status: 'unchecked',
+    note: '',
+  },
+  {
+    id: 'lc_amount',
+    label: 'LC amount / unit price',
+    expected: 'Must match locked PI FOB USD value',
+    foundInLc: '',
+    status: 'unchecked',
+    note: '',
+  },
+  {
+    id: 'lc_incoterm',
+    label: 'Incoterm + ports',
+    expected: 'FOB JNPT (Nhava Sheva) → Jebel Ali',
+    foundInLc: '',
+    status: 'unchecked',
+    note: '',
+  },
+  {
+    id: 'lc_latest',
+    label: 'Latest shipment date',
+    expected: 'Within 20 days of LC receipt / as agreed',
+    foundInLc: '',
+    status: 'unchecked',
+    note: '',
+  },
+  {
+    id: 'lc_docs',
+    label: 'Required documents list',
+    expected: 'Commercial Invoice, Packing List, B/L, Phyto, COO (+ fumigation/lab if asked)',
+    foundInLc: '',
+    status: 'unchecked',
+    note: '',
+  },
+  {
+    id: 'lc_partial',
+    label: 'Partial / transshipment clauses',
+    expected: 'Confirm allowed or prohibited as per your plan',
+    foundInLc: '',
+    status: 'unchecked',
+    note: '',
+  },
+]
+
+export const INITIAL_VENDOR: VendorOrder = {
+  supplierName: 'Guntur Chilli Traders',
+  supplierLocation: 'Guntur, Andhra Pradesh',
+  contactPerson: '',
+  productSpec: 'Teja S17 Stemless Super Deluxe Red Chilli',
+  quantityKg: 12000,
+  rateInrPerKg: 265,
+  packing: '25 kg PP bags (export packing)',
+  deliveryLocation: 'Ex-godown Guntur / as agreed for trucking to JNPT',
+  readyByDate: '',
+  paymentTermsToVendor: 'Advance / against delivery — confirm in writing',
+  qualityNotes: 'Moisture, broken %, stemless quality as per sample',
+  confirmed: false,
+  confirmationRef: '',
+}
+
 export function createInitialDeal(): DealData {
   const today = new Date().toISOString().slice(0, 10)
   return {
@@ -368,5 +467,12 @@ export function createInitialDeal(): DealData {
     piNumber: 'PI/TSI/2026/001',
     piDate: today,
     specialTestsNote: '',
+    poNumber: '',
+    poReceived: false,
+    lcNumber: '',
+    lcReceived: false,
+    lcChecks: LC_CHECKS,
+    lcClearedForProduction: false,
+    vendor: INITIAL_VENDOR,
   }
 }

@@ -26,6 +26,8 @@ HSN: **09042120**
 - **Buyer Clarify** — ask before you quote
 - **Cost Sheet** — INR working sheet + USD FOB suggestion
 - **Proforma Invoice** — unit price stays empty until cost lock
+- **PO / LC Review** — Rule 5 line-by-line LC checklist before production
+- **Vendor Confirm** — Guntur supplier firm order (blocked until LC cleared)
 - **Document Map** — IEC, RCMC, PI, PO, LC, CI, PL, SB, Phyto, COO, B/L…
 - **Today’s Lesson** — the core teaching moment
 

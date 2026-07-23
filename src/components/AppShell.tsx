@@ -8,6 +8,8 @@ import {
   LayoutDashboard,
   Map,
   Scale,
+  ScrollText,
+  Warehouse,
 } from 'lucide-react'
 import { useStore } from '../lib/StoreContext'
 import { computeCostSummary, stageLabel } from '../lib/costing'
@@ -19,6 +21,8 @@ const nav = [
   { to: '/clarify', label: 'Buyer Clarify', icon: HelpCircle },
   { to: '/cost-sheet', label: 'Cost Sheet', icon: ClipboardCheck },
   { to: '/proforma', label: 'Proforma Invoice', icon: FileText },
+  { to: '/po-lc', label: 'PO / LC Review', icon: ScrollText },
+  { to: '/vendor', label: 'Vendor Confirm', icon: Warehouse },
   { to: '/documents', label: 'Document Map', icon: Map },
   { to: '/lesson', label: 'Today’s Lesson', icon: BookOpen },
 ]
