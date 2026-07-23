@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
 import { useStore } from '../lib/StoreContext'
-import { computeCostSummary } from '../lib/costing'
+import { computeCostSummary, dealProgress } from '../lib/costing'
 import { Button, Card, PageHeader } from '../components/ui'
 
 export function LessonPage() {
   const { deal } = useStore()
   const summary = computeCostSummary(deal)
+  const progress = dealProgress(deal)
 
   return (
     <div>
@@ -29,43 +30,58 @@ export function LessonPage() {
         </Card>
 
         <Card className="p-5 text-sm leading-7 text-slate-700">
-          <div className="font-semibold text-slate-900">इस app में तुम्हारा path</div>
+          <div className="font-semibold text-slate-900">Full path in this app</div>
           <ol className="mt-3 list-decimal space-y-2 pl-5">
+            <li>
+              <Link className="font-medium text-teal-700 hover:underline" to="/company">
+                Company Setup
+              </Link>
+            </li>
             <li>
               <Link className="font-medium text-teal-700 hover:underline" to="/clarify">
                 Buyer Clarify
-              </Link>{' '}
-              — सवाल पूछो / जवाब lock करो
+              </Link>
             </li>
             <li>
               <Link className="font-medium text-teal-700 hover:underline" to="/cost-sheet">
                 Cost Sheet
-              </Link>{' '}
-              — Estimated / Quoted / Actual Paid
+              </Link>
             </li>
             <li>
               <Link className="font-medium text-teal-700 hover:underline" to="/proforma">
                 Proforma Invoice
-              </Link>{' '}
-              — unit price तभी जब costing complete हो
+              </Link>
             </li>
             <li>
               <Link className="font-medium text-teal-700 hover:underline" to="/po-lc">
                 PO / LC Review
-              </Link>{' '}
-              — Rule 5 checklist; mismatch हो तो amendment
+              </Link>
             </li>
             <li>
               <Link className="font-medium text-teal-700 hover:underline" to="/vendor">
                 Vendor Confirm
-              </Link>{' '}
-              — Guntur supplier firm order (LC clear के बाद)
+              </Link>
             </li>
             <li>
-              <Link className="font-medium text-teal-700 hover:underline" to="/documents">
-                Document Map
+              <Link className="font-medium text-teal-700 hover:underline" to="/production">
+                Production
               </Link>{' '}
-              — IEC → PI → PO/LC → CI/PL → SB/Phyto/COO → B/L → Payment
+              →{' '}
+              <Link className="font-medium text-teal-700 hover:underline" to="/dispatch">
+                Dispatch
+              </Link>{' '}
+              →{' '}
+              <Link className="font-medium text-teal-700 hover:underline" to="/customs">
+                Customs
+              </Link>{' '}
+              →{' '}
+              <Link className="font-medium text-teal-700 hover:underline" to="/vessel">
+                Vessel
+              </Link>{' '}
+              →{' '}
+              <Link className="font-medium text-teal-700 hover:underline" to="/payment">
+                Payment
+              </Link>
             </li>
           </ol>
         </Card>
@@ -73,29 +89,41 @@ export function LessonPage() {
         <Card className="p-5 text-sm leading-7 text-slate-700">
           <div className="font-semibold text-slate-900">Current checkpoint</div>
           <p className="mt-2">
+            Overall progress: <strong>{progress.pct}%</strong>
+            <br />
             Clarifying done? <strong>{summary.clarifyingDone ? 'Yes' : 'No'}</strong>
             <br />
-            Cost checklist ready for final quote?{' '}
-            <strong>{summary.canSendFinalPrice ? 'Yes' : 'No'}</strong>
+            PI unit price locked?{' '}
+            <strong>{deal.unitPriceUsd ? `USD ${deal.unitPriceUsd}/kg` : 'Not yet'}</strong>
             <br />
-            PI unit price locked? <strong>{deal.unitPriceUsd ? `USD ${deal.unitPriceUsd}/kg` : 'Not yet'}</strong>
-            <br />
-            LC cleared for production? <strong>{deal.lcClearedForProduction ? 'Yes' : 'No'}</strong>
+            LC cleared? <strong>{deal.lcClearedForProduction ? 'Yes' : 'No'}</strong>
             <br />
             Vendor confirmed? <strong>{deal.vendor.confirmed ? 'Yes' : 'No'}</strong>
+            <br />
+            Payment complete? <strong>{deal.payment.paymentComplete ? 'Yes' : 'No'}</strong>
           </p>
           <div className="mt-4">
             <Link
               to={
-                !summary.clarifyingDone
-                  ? '/clarify'
-                  : !deal.unitPriceUsd
-                    ? '/cost-sheet'
-                    : !deal.lcClearedForProduction
-                      ? '/po-lc'
-                      : !deal.vendor.confirmed
-                        ? '/vendor'
-                        : '/documents'
+                !deal.company.onboardingDone && !deal.company.iec
+                  ? '/company'
+                  : !summary.clarifyingDone
+                    ? '/clarify'
+                    : !deal.unitPriceUsd
+                      ? '/cost-sheet'
+                      : !deal.lcClearedForProduction
+                        ? '/po-lc'
+                        : !deal.vendor.confirmed
+                          ? '/vendor'
+                          : !deal.production.readyForPickup
+                            ? '/production'
+                            : !deal.dispatch.departedForPort
+                              ? '/dispatch'
+                              : !deal.customs.leoReceived
+                                ? '/customs'
+                                : !deal.vessel.blReceived
+                                  ? '/vessel'
+                                  : '/payment'
               }
             >
               <Button>Continue next step</Button>

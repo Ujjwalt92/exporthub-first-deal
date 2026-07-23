@@ -8,7 +8,7 @@ const sideLabel: Record<DocumentNode['side'], string> = {
   sales: 'Sales docs',
   logistics: 'Logistics',
   customs: 'Customs / PQ',
-  banking: 'Banking',
+  banking: 'Banking / payment',
 }
 
 const tone: Record<DocumentNode['status'], 'slate' | 'amber' | 'blue' | 'green' | 'rose'> = {

@@ -10,6 +10,16 @@ import { DocumentsPage } from './pages/DocumentsPage'
 import { LessonPage } from './pages/LessonPage'
 import { PoLcPage } from './pages/PoLcPage'
 import { VendorPage } from './pages/VendorPage'
+import { CompanyPage } from './pages/CompanyPage'
+import { ProductionPage } from './pages/ProductionPage'
+import { DispatchPage } from './pages/DispatchPage'
+import { CustomsPage } from './pages/CustomsPage'
+import { VesselPage } from './pages/VesselPage'
+import { PaymentPage } from './pages/PaymentPage'
+import { CommercialInvoicePage } from './pages/CommercialInvoicePage'
+import { PackingListPage } from './pages/PackingListPage'
+import { TemplatesPage } from './pages/TemplatesPage'
+import { HelpPage } from './pages/HelpPage'
 
 export default function App() {
   return (
@@ -18,13 +28,23 @@ export default function App() {
         <Routes>
           <Route element={<AppShell />}>
             <Route index element={<HomePage />} />
+            <Route path="company" element={<CompanyPage />} />
             <Route path="rules" element={<RulesPage />} />
             <Route path="clarify" element={<ClarifyPage />} />
             <Route path="cost-sheet" element={<CostSheetPage />} />
             <Route path="proforma" element={<ProformaPage />} />
             <Route path="po-lc" element={<PoLcPage />} />
             <Route path="vendor" element={<VendorPage />} />
+            <Route path="production" element={<ProductionPage />} />
+            <Route path="dispatch" element={<DispatchPage />} />
+            <Route path="customs" element={<CustomsPage />} />
+            <Route path="vessel" element={<VesselPage />} />
+            <Route path="payment" element={<PaymentPage />} />
             <Route path="documents" element={<DocumentsPage />} />
+            <Route path="documents/commercial-invoice" element={<CommercialInvoicePage />} />
+            <Route path="documents/packing-list" element={<PackingListPage />} />
+            <Route path="templates" element={<TemplatesPage />} />
+            <Route path="help" element={<HelpPage />} />
             <Route path="lesson" element={<LessonPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

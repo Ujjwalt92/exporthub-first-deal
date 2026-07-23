@@ -1,34 +1,69 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Mail, ShieldAlert } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Circle, Mail, ShieldAlert } from 'lucide-react'
 import { useStore } from '../lib/StoreContext'
-import { computeCostSummary, inr, stageLabel, usd } from '../lib/costing'
+import { computeCostSummary, dealProgress, inr, stageLabel, usd } from '../lib/costing'
 import { Badge, Button, Card, PageHeader } from '../components/ui'
 
-const flow: { stage: string; to: string; label: string }[] = [
-  { stage: 'clarify', to: '/clarify', label: 'Buyer clarify' },
-  { stage: 'costing', to: '/cost-sheet', label: 'Cost sheet' },
-  { stage: 'proforma', to: '/proforma', label: 'Proforma Invoice' },
-  { stage: 'po_lc', to: '/po-lc', label: 'PO / LC review' },
-  { stage: 'vendor', to: '/vendor', label: 'Vendor confirm' },
-  { stage: 'docs', to: '/documents', label: 'Document map' },
+const flow: { to: string; label: string; hint: string }[] = [
+  { to: '/company', label: 'Company setup', hint: 'IEC / bank / RCMC' },
+  { to: '/clarify', label: 'Buyer clarify', hint: 'Ask before quoting' },
+  { to: '/cost-sheet', label: 'Cost sheet', hint: 'Est / Quoted / Actual' },
+  { to: '/proforma', label: 'Proforma Invoice', hint: 'Official offer' },
+  { to: '/po-lc', label: 'PO / LC review', hint: 'Rule 5 checklist' },
+  { to: '/vendor', label: 'Vendor confirm', hint: 'Guntur supply lock' },
+  { to: '/production', label: 'Production', hint: 'QC + packing' },
+  { to: '/dispatch', label: 'Dispatch', hint: 'Stuffing + CI/PL' },
+  { to: '/customs', label: 'Customs', hint: 'SB / Phyto / LEO' },
+  { to: '/vessel', label: 'Vessel / B/L', hint: 'Booking + B/L' },
+  { to: '/payment', label: 'Payment', hint: 'Bank + FIRC' },
 ]
 
 export function HomePage() {
-  const { deal, setStage, resetDeal } = useStore()
+  const { deal, resetDeal } = useStore()
   const summary = computeCostSummary(deal)
+  const progress = dealProgress(deal)
   const answered = deal.clarifying.filter((q) => q.answered).length
 
   return (
     <div>
       <PageHeader
-        title="Morning email from UAE"
-        subtitle="एक live export project चलाएँगे — Teja S17 Stemless Red Chilli, 20 ft container। किताब नहीं, असली deal flow।"
+        title="Deal cockpit"
+        subtitle="एक live Teja S17 export deal — नए trader को process सिखाती है, experienced trader को checklist + cost discipline देती है।"
         actions={
-          <Button variant="secondary" onClick={() => confirm('Reset playbook demo data?') && resetDeal()}>
-            Reset deal
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/help">
+              <Button variant="secondary">Help / Glossary</Button>
+            </Link>
+            <Button variant="secondary" onClick={() => confirm('Reset playbook demo data?') && resetDeal()}>
+              Reset deal
+            </Button>
+          </div>
         }
       />
+
+      <div className="mb-6 grid gap-4 lg:grid-cols-4">
+        <Card className="p-4">
+          <div className="text-xs uppercase tracking-wide text-slate-500">Progress</div>
+          <div className="mt-2 text-2xl font-semibold">{progress.pct}%</div>
+          <div className="mt-1 text-xs text-slate-500">
+            {progress.doneCount}/{progress.total} milestones
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="text-xs uppercase tracking-wide text-slate-500">Stage</div>
+          <div className="mt-2 text-sm font-semibold">{stageLabel(deal.stage)}</div>
+        </Card>
+        <Card className="p-4">
+          <div className="text-xs uppercase tracking-wide text-slate-500">Suggested FOB</div>
+          <div className="mt-2 text-sm font-semibold">{usd(summary.unitPriceUsd)}/kg</div>
+          <div className="mt-1 text-xs text-slate-500">{usd(summary.totalUsd)} total</div>
+        </Card>
+        <Card className="p-4">
+          <div className="text-xs uppercase tracking-wide text-slate-500">INR target</div>
+          <div className="mt-2 text-sm font-semibold">{inr(summary.targetRevenueInr)}</div>
+          <div className="mt-1 text-xs text-slate-500">incl. contingency + margin</div>
+        </Card>
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="p-5 lg:col-span-2">
@@ -45,32 +80,32 @@ export function HomePage() {
               <div>
                 <div className="font-semibold">नए exporter की सबसे बड़ी गलती</div>
                 <div className="mt-1 leading-6">
-                  तुरंत rate बता देना। हम ऐसा नहीं करेंगे। पहले clarifying questions, फिर Quotation
-                  Preparation Checklist / cost sheet, फिर ही final FOB price।
+                  तुरंत rate बता देना। Experienced exporter पहले clarify करता है, cost sheet बनाता है, फिर
+                  FOB lock करके PI भेजता है।
                 </div>
               </div>
             </div>
           </div>
         </Card>
 
-        <Card className="space-y-4 p-5">
-          <div>
-            <div className="text-xs uppercase tracking-wide text-slate-500">Current stage</div>
-            <div className="mt-1 text-lg font-semibold text-slate-900">{stageLabel(deal.stage)}</div>
+        <Card className="space-y-3 p-5">
+          <div className="text-sm font-semibold">Milestone tracker</div>
+          {progress.checks.map((c) => (
+            <div key={c.id} className="flex items-center gap-2 text-sm">
+              {c.done ? (
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              ) : (
+                <Circle className="h-4 w-4 text-slate-300" />
+              )}
+              <span className={c.done ? 'text-slate-700' : 'text-slate-500'}>{c.label}</span>
+            </div>
+          ))}
+          <div className="pt-2 text-xs text-slate-500">
+            Buyer answers {answered}/{deal.clarifying.length} ·{' '}
+            <Badge tone={summary.canSendFinalPrice ? 'green' : 'amber'}>
+              {summary.canSendFinalPrice ? 'May quote' : 'Do not quote yet'}
+            </Badge>
           </div>
-          <div className="space-y-2 text-sm">
-            <Row label="Buyer answers" value={`${answered}/${deal.clarifying.length}`} />
-            <Row
-              label="Quote lock"
-              value={summary.canSendFinalPrice ? 'Allowed' : 'Blocked by Rule 1'}
-            />
-            <Row label="Suggested FOB" value={usd(summary.unitPriceUsd) + '/kg'} />
-            <Row label="Total FOB" value={usd(summary.totalUsd)} />
-            <Row label="INR target" value={inr(summary.targetRevenueInr)} />
-          </div>
-          <Badge tone={summary.canSendFinalPrice ? 'green' : 'amber'}>
-            {summary.canSendFinalPrice ? 'Rule 1 clear — you may quote' : 'Rule 1 active — no final price yet'}
-          </Badge>
         </Card>
       </div>
 
@@ -79,21 +114,9 @@ export function HomePage() {
           <Card key={step.to} className="p-5">
             <div className="text-xs font-medium text-slate-500">Step {idx + 1}</div>
             <div className="mt-1 text-sm font-semibold text-slate-900">{step.label}</div>
+            <div className="mt-1 text-xs text-slate-500">{step.hint}</div>
             <Link to={step.to} className="mt-4 inline-flex">
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  if (
-                    step.stage === 'clarify' ||
-                    step.stage === 'costing' ||
-                    step.stage === 'proforma' ||
-                    step.stage === 'po_lc' ||
-                    step.stage === 'vendor'
-                  ) {
-                    setStage(step.stage as typeof deal.stage)
-                  }
-                }}
-              >
+              <Button variant="secondary">
                 Open
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -105,7 +128,7 @@ export function HomePage() {
       <Card className="mt-6 p-5">
         <div className="text-sm font-semibold text-slate-900">Deal snapshot</div>
         <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
-          <Snap label="Seller" value={deal.companyName} />
+          <Snap label="Seller" value={deal.company.legalName || deal.companyName} />
           <Snap label="Buyer" value={deal.buyerName} />
           <Snap label="HSN" value={deal.hsnCode} />
           <Snap label="Quantity" value={`${deal.quantityKg.toLocaleString('en-IN')} kg`} />
@@ -113,15 +136,6 @@ export function HomePage() {
           <Snap label="Route" value={`${deal.portOfLoading} → ${deal.portOfDischarge}`} />
         </div>
       </Card>
-    </div>
-  )
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-slate-500">{label}</span>
-      <span className="font-medium text-slate-800">{value}</span>
     </div>
   )
 }

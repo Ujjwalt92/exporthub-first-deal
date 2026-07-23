@@ -1,35 +1,41 @@
 # ExportHub — First Deal Playbook
 
-Live export training project (not a generic ERP).
+A practical export workspace for **new and existing traders**.
 
-## The deal
+Not a generic ERP — a live guided deal for:
 
-UAE buyer asks for best price on **1 × 20 ft container Teja S17 Stemless Red Chilli**.
+**Teja S17 Stemless Super Deluxe Red Chilli**  
+1 × 20 ft · 12,000 kg · 25 kg PP bags · FOB JNPT → Jebel Ali · LC at Sight
 
-Seller: **Tiwari's Spices International**  
-Route: **FOB JNPT → Jebel Ali**  
-Qty: **12,000 kg** in **25 kg PP bags (480 bags)**  
-Payment: **Irrevocable LC at Sight**  
-HSN: **09042120**
+## Who it helps
 
-## Playbook rules baked into the app
+### New traders
+- Learn the full path: inquire → clarify → cost → PI → PO/LC → vendor → production → dispatch → customs → vessel → payment
+- Avoid the #1 mistake: quoting before costing
+- Glossary + email templates + stage gates
 
-1. **Never send final price** until the quotation checklist / cost sheet is complete.
-2. Every cost has **Estimated → Quoted → Actual Paid**.
-4. **Proforma Invoice first**; Commercial Invoice only at dispatch.
-5. **Never start production/shipment** before reading the LC fully.
+### Existing traders
+- Disciplined cost sheet (Estimated / Quoted / Actual Paid)
+- LC line-by-line review before production
+- Document map + printable PI / Commercial Invoice / Packing List
+- Milestone cockpit for one live shipment
 
-## App sections
+## Playbook rules
+1. Never send final price until cost checklist is complete  
+2. No assumed costs — Estimated → Quoted → Actual Paid  
+3. Everything in writing  
+4. Proforma first, Commercial Invoice at dispatch  
+5. Never produce/ship before reading LC fully  
+6. Documents = Payment  
 
-- **Deal Home** — morning UAE email + stage snapshot
-- **Playbook Rules**
-- **Buyer Clarify** — ask before you quote
-- **Cost Sheet** — INR working sheet + USD FOB suggestion
-- **Proforma Invoice** — unit price stays empty until cost lock
-- **PO / LC Review** — Rule 5 line-by-line LC checklist before production
-- **Vendor Confirm** — Guntur supplier firm order (blocked until LC cleared)
-- **Document Map** — IEC, RCMC, PI, PO, LC, CI, PL, SB, Phyto, COO, B/L…
-- **Today’s Lesson** — the core teaching moment
+## App map
+- **Deal Cockpit** — progress + inquiry + milestones  
+- **Company Setup** — IEC, GST, bank, RCMC  
+- **Buyer Clarify / Cost Sheet / PI**  
+- **PO-LC Review / Vendor Confirm**  
+- **Production / Dispatch / Customs / Vessel / Payment**  
+- **Document Map + CI + Packing List**  
+- **Email Templates + Help/Glossary + Rules/Lesson**
 
 ## Run
 
@@ -45,4 +51,4 @@ npm run dev
 npm run build
 ```
 
-Data is stored in browser `localStorage`.
+Data persists in browser `localStorage` (`exporthub-first-deal-v3`).

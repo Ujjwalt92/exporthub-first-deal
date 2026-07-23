@@ -171,7 +171,11 @@ export function VendorPage() {
 
       <Card className="mt-6 p-5 text-sm leading-7 text-slate-600">
         Confirm होने पर vendor rate cost sheet की <strong>Quoted ₹</strong> line में copy हो जाएगी
-        (Rule no. 2). अगला stage: production follow-up → dispatch docs।
+        (Rule no. 2). अगला stage:{' '}
+        <Link className="font-medium text-teal-700 hover:underline" to="/production">
+          Production
+        </Link>
+        .
       </Card>
     </div>
   )

@@ -1,11 +1,20 @@
 import type {
   ClarifyingQuestion,
+  CompanyProfile,
   CostLine,
+  CustomsState,
   DealData,
+  DispatchState,
   DocumentNode,
+  EmailTemplate,
+  GlossaryTerm,
   LcCheckItem,
+  PaymentState,
   PlaybookRule,
+  ProductionState,
+  TaskItem,
   VendorOrder,
+  VesselState,
 } from '../types'
 
 export const PLAYBOOK_RULES: PlaybookRule[] = [
@@ -22,6 +31,12 @@ export const PLAYBOOK_RULES: PlaybookRule[] = [
     body: 'हर खर्च के सामने तीन कॉलम रखो: Estimated → Quoted → Actual Paid। Actual आने पर estimated को replace करो।',
   },
   {
+    id: 'rule_3',
+    number: 3,
+    title: 'हर बात लिखित में लो',
+    body: 'Rate, quality, packing, ready date, payment — WhatsApp/email/PO में confirm करो। मौखिक बात पर shipment मत चलाओ।',
+  },
+  {
     id: 'rule_4',
     number: 4,
     title: 'पहले Proforma Invoice, Commercial Invoice बाद में',
@@ -32,6 +47,12 @@ export const PLAYBOOK_RULES: PlaybookRule[] = [
     number: 5,
     title: 'LC पूरी तरह पढ़े बिना माल तैयार मत करो',
     body: 'LC में नाम, quantity, incoterm, shipment date और documents list चेक करो। गलती हो तो पहले amend करवाओ।',
+  },
+  {
+    id: 'rule_6',
+    number: 6,
+    title: 'Documents = Payment',
+    body: 'LC में जो documents माँगे हैं, वही exact set bank को lodge करो। Discrepancy = delay या non-payment risk।',
   },
 ]
 
@@ -340,6 +361,24 @@ export const DOCUMENTS: DocumentNode[] = [
     whenNeeded: 'Port पर customs clearance के समय।',
     status: 'not_started',
   },
+  {
+    id: 'bank_lodge',
+    name: 'Bank Document Lodgement',
+    stage: 'Banking',
+    side: 'banking',
+    shortIntro: 'LC के अनुसार documents bank में lodge करना।',
+    whenNeeded: 'B/L और export docs ready होने के बाद।',
+    status: 'not_started',
+  },
+  {
+    id: 'firc',
+    name: 'FIRC / e-BRC',
+    stage: 'Banking',
+    side: 'banking',
+    shortIntro: 'Payment realization certificate from bank।',
+    whenNeeded: 'Buyer/LC payment credit होने पर।',
+    status: 'not_started',
+  },
 ]
 
 export const LC_CHECKS: LcCheckItem[] = [
@@ -433,11 +472,313 @@ export const INITIAL_VENDOR: VendorOrder = {
   confirmationRef: '',
 }
 
+function tasks(labels: string[]): TaskItem[] {
+  return labels.map((label, i) => ({ id: `t${i + 1}`, label, done: false, note: '' }))
+}
+
+export const INITIAL_COMPANY: CompanyProfile = {
+  legalName: "Tiwari's Spices International",
+  brandName: "Tiwari's Spices",
+  address: 'Export Office, Spice Market Road',
+  city: 'Guntur',
+  state: 'Andhra Pradesh',
+  country: 'India',
+  postalCode: '522001',
+  email: 'exports@tiwarispicess.example',
+  phone: '+91 98765 43210',
+  gstin: '37AAAAA0000A1Z5',
+  iec: 'AAECT1234H',
+  pan: 'AAECT1234H',
+  adCode: '0000000-0000000',
+  bankName: 'State Bank of India',
+  bankAccount: 'XXXXXXXXXXXX',
+  bankIfsc: 'SBIN0000000',
+  bankSwift: 'SBININBBXXX',
+  spicesBoardRcmc: 'RCMC-PENDING',
+  onboardingDone: false,
+}
+
+export const INITIAL_PRODUCTION: ProductionState = {
+  tasks: tasks([
+    'Share approved sample / photo specs with vendor',
+    'Confirm stemless sorting & grading started',
+    'Confirm packing material (25 kg PP bags) ready',
+    'Book QC / moisture check date',
+    'Confirm exact bag count plan (480 bags)',
+    'Align pickup truck date with transporter',
+  ]),
+  qcMoisturePct: '',
+  qcBrokenPct: '',
+  sampleApproved: false,
+  packedBags: 0,
+  netWeightKg: 0,
+  grossWeightKg: 0,
+  readyForPickup: false,
+  notes: '',
+}
+
+export const INITIAL_DISPATCH: DispatchState = {
+  truckNumber: '',
+  transporterName: '',
+  ewayBill: '',
+  pickupDate: '',
+  stuffingDate: '',
+  containerNumber: '',
+  sealNumber: '',
+  factoryInvoiceNo: '',
+  ciNumber: '',
+  ciDate: '',
+  plNumber: '',
+  marksAndNumbers: 'TIWARI / TEJA S17 / JEBEL ALI / 1-480',
+  stuffed: false,
+  departedForPort: false,
+  notes: '',
+}
+
+export const INITIAL_CUSTOMS: CustomsState = {
+  tasks: tasks([
+    'Appoint / brief CHA with shipment file',
+    'File Shipping Bill (ICEGATE) draft check',
+    'Apply Phytosanitary Certificate',
+    'Arrange Certificate of Origin',
+    'Fumigation if LC/buyer requires',
+    'Gate-in container at CFS/port',
+    'Receive LEO (Let Export Order)',
+  ]),
+  shippingBillNo: '',
+  shippingBillDate: '',
+  phytoNo: '',
+  phytoDate: '',
+  cooNo: '',
+  cooDate: '',
+  fumigationNo: '',
+  chaName: '',
+  leoReceived: false,
+  notes: '',
+}
+
+export const INITIAL_VESSEL: VesselState = {
+  forwarderName: '',
+  bookingRef: '',
+  vesselName: '',
+  voyageNo: '',
+  etd: '',
+  eta: '',
+  blNumber: '',
+  blDate: '',
+  blType: '',
+  onboardConfirmed: false,
+  blReceived: false,
+  notes: '',
+}
+
+export const INITIAL_PAYMENT: PaymentState = {
+  tasks: tasks([
+    'Prepare LC document set exactly as LC asks',
+    'Cross-check invoice value vs LC amount',
+    'Lodge documents with negotiating/advising bank',
+    'Track discrepancy advice if any',
+    'Follow realization / credit advice',
+    'Update FIRC / e-BRC when received',
+  ]),
+  docsLodgedWithBank: false,
+  lodgeDate: '',
+  discrepancyNotes: '',
+  negotiationRef: '',
+  amountReceivedUsd: null,
+  amountReceivedInr: null,
+  realizationDate: '',
+  fircRef: '',
+  paymentComplete: false,
+  notes: '',
+}
+
+export const EMAIL_TEMPLATES: EmailTemplate[] = [
+  {
+    id: 'tpl_clarify',
+    title: 'Ask buyer clarifying questions',
+    whenToUse: 'When buyer only says “send best price”',
+    subject: 'Re: Teja S17 enquiry — quick details needed before firm offer',
+    body: `Dear Buyer,
+
+Thank you for your enquiry for Teja S17 Stemless Red Chilli (1 x 20' container).
+
+Before we send a firm FOB offer, please confirm:
+1) Exact grade (e.g. Super Deluxe stemless)
+2) Packing (bag size)
+3) Destination port
+4) Preferred Incoterm (FOB / CIF / CFR)
+5) Payment terms
+6) Required shipment window
+7) Any lab test / fumigation / pesticide residue requirement
+
+We will revert with our best FOB JNPT price within 24 hours after confirmation.
+
+Regards,
+{{company}}`,
+  },
+  {
+    id: 'tpl_pi',
+    title: 'Send Proforma Invoice',
+    whenToUse: 'After cost sheet is complete and FOB locked',
+    subject: 'Proforma Invoice {{pi}} — Teja S17 Stemless Super Deluxe',
+    body: `Dear {{buyer}},
+
+Please find our Proforma Invoice {{pi}} dated {{piDate}}.
+
+Product: Teja S17 Stemless Super Deluxe Red Chilli
+Qty: 12,000 kg (480 x 25 kg PP bags)
+Incoterm: FOB JNPT
+Payment: Irrevocable LC at Sight
+Shipment: Within 20 days of LC
+
+Kindly confirm acceptance and arrange PO / LC as per PI terms.
+
+Regards,
+{{company}}`,
+  },
+  {
+    id: 'tpl_lc_amend',
+    title: 'Request LC amendment',
+    whenToUse: 'When LC checklist shows mismatch',
+    subject: 'Request for LC amendment — {{lc}}',
+    body: `Dear {{buyer}},
+
+We have received LC {{lc}}. Please arrange the following amendment(s) before we proceed with production:
+
+{{amendments}}
+
+We will commence procurement immediately after amended LC is received.
+
+Regards,
+{{company}}`,
+  },
+  {
+    id: 'tpl_vendor',
+    title: 'Vendor purchase confirmation',
+    whenToUse: 'After LC cleared — lock Guntur supply',
+    subject: 'Purchase confirmation — Teja S17 12 MT export packing',
+    body: `Dear Supplier,
+
+Please confirm supply as below:
+Product: Teja S17 Stemless Super Deluxe
+Qty: 12,000 kg
+Packing: 25 kg PP bags export packing
+Rate: ₹___ / kg
+Ready by: ___
+Delivery: Guntur godown / loading point
+
+Please reply with written confirmation and lot/quality notes.
+
+Regards,
+{{company}}`,
+  },
+  {
+    id: 'tpl_shipping',
+    title: 'Pre-shipment advice to buyer',
+    whenToUse: 'After stuffing / before vessel sailing',
+    subject: 'Shipment advice — Container {{container}} / Seal {{seal}}',
+    body: `Dear {{buyer}},
+
+Shipment update for Teja S17 order:
+Container: {{container}}
+Seal: {{seal}}
+Vessel/Voyage: {{vessel}}
+ETD JNPT: {{etd}}
+ETA Jebel Ali: {{eta}}
+B/L: {{bl}}
+
+Documents will be lodged as per LC.
+
+Regards,
+{{company}}`,
+  },
+]
+
+export const GLOSSARY: GlossaryTerm[] = [
+  {
+    id: 'g_iec',
+    term: 'IEC',
+    meaning: 'Import Export Code issued by DGFT — mandatory to export from India.',
+    tip: 'Without IEC you cannot file shipping bill.',
+  },
+  {
+    id: 'g_rcmc',
+    term: 'RCMC',
+    meaning: 'Registration-Cum-Membership Certificate from Spices Board (for spices).',
+    tip: 'Useful for board schemes and credibility.',
+  },
+  {
+    id: 'g_pi',
+    term: 'Proforma Invoice (PI)',
+    meaning: 'Official quotation / offer document before order finalization.',
+    tip: 'Not a tax invoice. Goes before PO/LC.',
+  },
+  {
+    id: 'g_ci',
+    term: 'Commercial Invoice',
+    meaning: 'Actual invoice issued at shipment time for customs and bank.',
+    tip: 'Must match LC description and value.',
+  },
+  {
+    id: 'g_fob',
+    term: 'FOB',
+    meaning: 'Free On Board — seller delivers goods on board at loading port; ocean freight usually buyer’s.',
+    tip: 'Our demo quote is FOB JNPT.',
+  },
+  {
+    id: 'g_lc',
+    term: 'LC at Sight',
+    meaning: 'Letter of Credit payable when complying documents are presented.',
+    tip: 'Read every clause before production (Rule 5).',
+  },
+  {
+    id: 'g_bl',
+    term: 'Bill of Lading (B/L)',
+    meaning: 'Transport document + title of goods issued by carrier/forwarder.',
+    tip: 'LC often asks for full set of original B/Ls.',
+  },
+  {
+    id: 'g_phyto',
+    term: 'Phytosanitary Certificate',
+    meaning: 'Plant quarantine certificate for agri products like chilli.',
+    tip: 'Apply early — don’t wait for vessel cut-off.',
+  },
+  {
+    id: 'g_sb',
+    term: 'Shipping Bill',
+    meaning: 'Indian customs export declaration.',
+    tip: 'LEO means customs allowed export.',
+  },
+  {
+    id: 'g_firc',
+    term: 'FIRC / e-BRC',
+    meaning: 'Bank advice that export payment has been realized.',
+    tip: 'Needed for closing the deal cleanly and incentives.',
+  },
+  {
+    id: 'g_cha',
+    term: 'CHA',
+    meaning: 'Customs House Agent who files customs docs and coordinates port formalities.',
+    tip: 'Give CHA a complete file: CI, PL, invoices, LC copy.',
+  },
+  {
+    id: 'g_hsn',
+    term: 'HSN / HS Code',
+    meaning: 'Product classification code used in customs worldwide.',
+    tip: 'For this deal: 09042120.',
+  },
+]
+
 export function createInitialDeal(): DealData {
   const today = new Date().toISOString().slice(0, 10)
+  const stamp = Date.now().toString().slice(-4)
   return {
-    companyName: "Tiwari's Spices International",
+    company: INITIAL_COMPANY,
+    companyName: INITIAL_COMPANY.legalName,
     buyerName: '[Buyer Name Placeholder]',
+    buyerEmail: 'buyer@uae.example',
+    buyerCountry: 'United Arab Emirates',
     productName: 'Teja S17 Stemless Super Deluxe Red Chilli',
     hsnCode: '09042120',
     quantityKg: 12000,
@@ -474,5 +815,17 @@ export function createInitialDeal(): DealData {
     lcChecks: LC_CHECKS,
     lcClearedForProduction: false,
     vendor: INITIAL_VENDOR,
+    production: INITIAL_PRODUCTION,
+    dispatch: {
+      ...INITIAL_DISPATCH,
+      ciNumber: `CI/TSI/2026/${stamp}`,
+      ciDate: today,
+      plNumber: `PL/TSI/2026/${stamp}`,
+    },
+    customs: INITIAL_CUSTOMS,
+    vessel: INITIAL_VESSEL,
+    payment: INITIAL_PAYMENT,
+    templates: EMAIL_TEMPLATES,
+    glossary: GLOSSARY,
   }
 }

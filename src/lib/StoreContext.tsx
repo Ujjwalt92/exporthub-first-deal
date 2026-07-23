@@ -2,16 +2,23 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { createInitialDeal } from '../data/playbook'
 import type {
   ClarifyingQuestion,
+  CompanyProfile,
   CostLine,
+  CustomsState,
   DealData,
   DealStage,
+  DispatchState,
   DocumentNode,
   LcCheckItem,
+  PaymentState,
+  ProductionState,
+  TaskItem,
   VendorOrder,
+  VesselState,
 } from '../types'
 import { computeCostSummary } from './costing'
 
-const STORAGE_KEY = 'exporthub-first-deal-v2'
+const STORAGE_KEY = 'exporthub-first-deal-v3'
 
 interface Store {
   deal: DealData
@@ -19,12 +26,26 @@ interface Store {
   updateClarifying: (id: string, patch: Partial<ClarifyingQuestion>) => void
   updateCost: (id: string, patch: Partial<CostLine['money']> & { notes?: string }) => void
   updateDeal: (patch: Partial<DealData>) => void
+  updateCompany: (patch: Partial<CompanyProfile>) => void
   updateDocument: (id: string, patch: Partial<DocumentNode>) => void
   updateLcCheck: (id: string, patch: Partial<LcCheckItem>) => void
   updateVendor: (patch: Partial<VendorOrder>) => void
+  updateProduction: (patch: Partial<ProductionState>) => void
+  updateProductionTask: (id: string, patch: Partial<TaskItem>) => void
+  updateDispatch: (patch: Partial<DispatchState>) => void
+  updateCustoms: (patch: Partial<CustomsState>) => void
+  updateCustomsTask: (id: string, patch: Partial<TaskItem>) => void
+  updateVessel: (patch: Partial<VesselState>) => void
+  updatePayment: (patch: Partial<PaymentState>) => void
+  updatePaymentTask: (id: string, patch: Partial<TaskItem>) => void
   applySuggestedUnitPrice: () => void
   markLcCleared: () => void
   confirmVendor: () => void
+  markProductionReady: () => void
+  markDispatchDone: () => void
+  markCustomsLeo: () => void
+  markBlReceived: () => void
+  markPaymentComplete: () => void
   resetDeal: () => void
 }
 
@@ -39,16 +60,43 @@ function load(): DealData {
     return {
       ...base,
       ...parsed,
+      company: { ...base.company, ...(parsed.company ?? {}) },
       clarifying: parsed.clarifying ?? base.clarifying,
       costs: parsed.costs ?? base.costs,
-      rules: parsed.rules ?? base.rules,
+      rules: base.rules,
       documents: parsed.documents ?? base.documents,
       lcChecks: parsed.lcChecks ?? base.lcChecks,
       vendor: { ...base.vendor, ...(parsed.vendor ?? {}) },
+      production: {
+        ...base.production,
+        ...(parsed.production ?? {}),
+        tasks: parsed.production?.tasks ?? base.production.tasks,
+      },
+      dispatch: { ...base.dispatch, ...(parsed.dispatch ?? {}) },
+      customs: {
+        ...base.customs,
+        ...(parsed.customs ?? {}),
+        tasks: parsed.customs?.tasks ?? base.customs.tasks,
+      },
+      vessel: { ...base.vessel, ...(parsed.vessel ?? {}) },
+      payment: {
+        ...base.payment,
+        ...(parsed.payment ?? {}),
+        tasks: parsed.payment?.tasks ?? base.payment.tasks,
+      },
+      templates: base.templates,
+      glossary: base.glossary,
     }
   } catch {
     return createInitialDeal()
   }
+}
+
+function patchDoc(
+  docs: DocumentNode[],
+  updates: Partial<Record<string, DocumentNode['status']>>,
+): DocumentNode[] {
+  return docs.map((doc) => (updates[doc.id] ? { ...doc, status: updates[doc.id]! } : doc))
 }
 
 export function StoreProvider({ children }: { children: ReactNode }) {
@@ -98,6 +146,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ),
         })),
       updateDeal: (patch) => setDeal((d) => ({ ...d, ...patch })),
+      updateCompany: (patch) =>
+        setDeal((d) => ({
+          ...d,
+          company: { ...d.company, ...patch },
+          companyName: patch.legalName ?? d.companyName,
+        })),
       updateDocument: (id, patch) =>
         setDeal((d) => ({
           ...d,
@@ -110,6 +164,36 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           lcClearedForProduction: false,
         })),
       updateVendor: (patch) => setDeal((d) => ({ ...d, vendor: { ...d.vendor, ...patch } })),
+      updateProduction: (patch) =>
+        setDeal((d) => ({ ...d, production: { ...d.production, ...patch } })),
+      updateProductionTask: (id, patch) =>
+        setDeal((d) => ({
+          ...d,
+          production: {
+            ...d.production,
+            tasks: d.production.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+          },
+        })),
+      updateDispatch: (patch) => setDeal((d) => ({ ...d, dispatch: { ...d.dispatch, ...patch } })),
+      updateCustoms: (patch) => setDeal((d) => ({ ...d, customs: { ...d.customs, ...patch } })),
+      updateCustomsTask: (id, patch) =>
+        setDeal((d) => ({
+          ...d,
+          customs: {
+            ...d.customs,
+            tasks: d.customs.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+          },
+        })),
+      updateVessel: (patch) => setDeal((d) => ({ ...d, vessel: { ...d.vessel, ...patch } })),
+      updatePayment: (patch) => setDeal((d) => ({ ...d, payment: { ...d.payment, ...patch } })),
+      updatePaymentTask: (id, patch) =>
+        setDeal((d) => ({
+          ...d,
+          payment: {
+            ...d.payment,
+            tasks: d.payment.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+          },
+        })),
       applySuggestedUnitPrice: () =>
         setDeal((d) => {
           const summary = computeCostSummary(d)
@@ -118,9 +202,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             ...d,
             unitPriceUsd: Number(summary.unitPriceUsd.toFixed(2)),
             stage: 'proforma',
-            documents: d.documents.map((doc) =>
-              doc.id === 'pi' ? { ...doc, status: 'ready' } : doc,
-            ),
+            documents: patchDoc(d.documents, { pi: 'ready' }),
           }
         }),
       markLcCleared: () =>
@@ -131,9 +213,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             ...d,
             lcClearedForProduction: true,
             stage: 'vendor',
-            documents: d.documents.map((doc) =>
-              doc.id === 'lc' ? { ...doc, status: 'received' } : doc.id === 'po' && d.poReceived ? { ...doc, status: 'received' } : doc,
-            ),
+            documents: patchDoc(d.documents, {
+              lc: 'received',
+              ...(d.poReceived ? { po: 'received' } : {}),
+            }),
           }
         }),
       confirmVendor: () =>
@@ -146,6 +229,56 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             vendorPricePerKgInr: d.vendor.rateInrPerKg ?? d.vendorPricePerKgInr,
           }
         }),
+      markProductionReady: () =>
+        setDeal((d) => {
+          if (!d.vendor.confirmed) return d
+          return {
+            ...d,
+            production: { ...d.production, readyForPickup: true },
+            stage: 'dispatch',
+          }
+        }),
+      markDispatchDone: () =>
+        setDeal((d) => {
+          if (!d.dispatch.stuffed) return d
+          return {
+            ...d,
+            dispatch: { ...d.dispatch, departedForPort: true },
+            stage: 'customs',
+            documents: patchDoc(d.documents, { ci: 'ready', pl: 'ready' }),
+          }
+        }),
+      markCustomsLeo: () =>
+        setDeal((d) => ({
+          ...d,
+          customs: { ...d.customs, leoReceived: true },
+          stage: 'vessel',
+          documents: patchDoc(d.documents, {
+            sb: d.customs.shippingBillNo ? 'ready' : 'in_progress',
+            phyto_doc: d.customs.phytoNo ? 'ready' : 'in_progress',
+            coo_doc: d.customs.cooNo ? 'ready' : 'in_progress',
+          }),
+        })),
+      markBlReceived: () =>
+        setDeal((d) => ({
+          ...d,
+          vessel: { ...d.vessel, blReceived: true, onboardConfirmed: true },
+          stage: 'payment',
+          documents: patchDoc(d.documents, {
+            bl: 'received',
+            booking: 'ready',
+          }),
+        })),
+      markPaymentComplete: () =>
+        setDeal((d) => ({
+          ...d,
+          payment: { ...d.payment, paymentComplete: true },
+          stage: 'closed',
+          documents: patchDoc(d.documents, {
+            bank_lodge: 'ready',
+            firc: d.payment.fircRef ? 'received' : 'in_progress',
+          }),
+        })),
       resetDeal: () => {
         const next = createInitialDeal()
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next))

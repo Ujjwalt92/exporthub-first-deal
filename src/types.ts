@@ -12,8 +12,6 @@ export type DealStage =
   | 'payment'
   | 'closed'
 
-export type CostStatus = 'pending' | 'estimated' | 'quoted' | 'locked'
-
 export interface MoneyTriple {
   estimatedInr: number | null
   quotedInr: number | null
@@ -82,9 +80,129 @@ export interface VendorOrder {
   confirmationRef: string
 }
 
+export interface TaskItem {
+  id: string
+  label: string
+  done: boolean
+  note: string
+}
+
+export interface CompanyProfile {
+  legalName: string
+  brandName: string
+  address: string
+  city: string
+  state: string
+  country: string
+  postalCode: string
+  email: string
+  phone: string
+  gstin: string
+  iec: string
+  pan: string
+  adCode: string
+  bankName: string
+  bankAccount: string
+  bankIfsc: string
+  bankSwift: string
+  spicesBoardRcmc: string
+  onboardingDone: boolean
+}
+
+export interface ProductionState {
+  tasks: TaskItem[]
+  qcMoisturePct: string
+  qcBrokenPct: string
+  sampleApproved: boolean
+  packedBags: number
+  netWeightKg: number
+  grossWeightKg: number
+  readyForPickup: boolean
+  notes: string
+}
+
+export interface DispatchState {
+  truckNumber: string
+  transporterName: string
+  ewayBill: string
+  pickupDate: string
+  stuffingDate: string
+  containerNumber: string
+  sealNumber: string
+  factoryInvoiceNo: string
+  ciNumber: string
+  ciDate: string
+  plNumber: string
+  marksAndNumbers: string
+  stuffed: boolean
+  departedForPort: boolean
+  notes: string
+}
+
+export interface CustomsState {
+  tasks: TaskItem[]
+  shippingBillNo: string
+  shippingBillDate: string
+  phytoNo: string
+  phytoDate: string
+  cooNo: string
+  cooDate: string
+  fumigationNo: string
+  chaName: string
+  leoReceived: boolean
+  notes: string
+}
+
+export interface VesselState {
+  forwarderName: string
+  bookingRef: string
+  vesselName: string
+  voyageNo: string
+  etd: string
+  eta: string
+  blNumber: string
+  blDate: string
+  blType: 'original' | 'telex' | 'seaway' | ''
+  onboardConfirmed: boolean
+  blReceived: boolean
+  notes: string
+}
+
+export interface PaymentState {
+  tasks: TaskItem[]
+  docsLodgedWithBank: boolean
+  lodgeDate: string
+  discrepancyNotes: string
+  negotiationRef: string
+  amountReceivedUsd: number | null
+  amountReceivedInr: number | null
+  realizationDate: string
+  fircRef: string
+  paymentComplete: boolean
+  notes: string
+}
+
+export interface EmailTemplate {
+  id: string
+  title: string
+  whenToUse: string
+  subject: string
+  body: string
+}
+
+export interface GlossaryTerm {
+  id: string
+  term: string
+  meaning: string
+  tip: string
+}
+
 export interface DealData {
+  company: CompanyProfile
   companyName: string
   buyerName: string
+  buyerEmail: string
+  buyerCountry: string
   productName: string
   hsnCode: string
   quantityKg: number
@@ -120,6 +238,13 @@ export interface DealData {
   lcChecks: LcCheckItem[]
   lcClearedForProduction: boolean
   vendor: VendorOrder
+  production: ProductionState
+  dispatch: DispatchState
+  customs: CustomsState
+  vessel: VesselState
+  payment: PaymentState
+  templates: EmailTemplate[]
+  glossary: GlossaryTerm[]
 }
 
 export interface AppState {

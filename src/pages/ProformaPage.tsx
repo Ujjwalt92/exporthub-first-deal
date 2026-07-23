@@ -64,8 +64,11 @@ export function ProformaPage() {
             <div className="text-xs font-semibold uppercase tracking-[0.2em] text-teal-700">
               Proforma Invoice
             </div>
-            <div className="mt-2 text-2xl font-semibold text-slate-900">{deal.companyName}</div>
+            <div className="mt-2 text-2xl font-semibold text-slate-900">{deal.company.legalName || deal.companyName}</div>
             <div className="mt-2 text-sm text-slate-500">Official quotation · Not a tax invoice</div>
+            <div className="mt-2 text-xs text-slate-500">
+              IEC {deal.company.iec} · {deal.company.email}
+            </div>
           </div>
           <div className="text-right text-sm">
             <div className="font-semibold text-slate-900">{deal.piNumber}</div>
@@ -79,7 +82,7 @@ export function ProformaPage() {
         <div className="mt-6 grid gap-6 sm:grid-cols-2 text-sm">
           <div>
             <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Seller</div>
-            <div className="mt-2 font-semibold text-slate-900">{deal.companyName}</div>
+            <div className="mt-2 font-semibold text-slate-900">{deal.company.legalName || deal.companyName}</div>
           </div>
           <div>
             <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Buyer</div>
