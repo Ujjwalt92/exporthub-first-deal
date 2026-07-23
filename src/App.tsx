@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { StoreProvider } from './lib/StoreContext'
 import { AppShell } from './components/AppShell'
 import { HomePage } from './pages/HomePage'
@@ -33,7 +33,7 @@ import { CompletionReportPage } from './pages/CompletionReportPage'
 export default function App() {
   return (
     <StoreProvider>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route element={<AppShell />}>
             <Route index element={<HomePage />} />
@@ -67,7 +67,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </StoreProvider>
   )
 }
