@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useStore } from '../lib/StoreContext'
 import { computeCostSummary, effectiveInr, inr, usd } from '../lib/costing'
+import { BeginnerCallout } from '../components/BeginnerCallout'
 import { Badge, Button, Card, Field, Input, PageHeader } from '../components/ui'
 
 export function CostSheetPage() {
@@ -34,6 +35,8 @@ export function CostSheetPage() {
           </div>
         }
       />
+
+      <BeginnerCallout stageIds={['cost-sheet']} />
 
       <div className="mb-6 grid gap-4 lg:grid-cols-4">
         <Summary label="Base export cost" value={inr(summary.baseCostInr)} hint="Ocean freight excluded (FOB)" />

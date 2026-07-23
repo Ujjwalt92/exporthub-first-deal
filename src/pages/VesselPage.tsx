@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useStore } from '../lib/StoreContext'
 import { GateBanner } from '../components/TaskChecklist'
+import { BeginnerCallout } from '../components/BeginnerCallout'
 import { Button, Card, Field, Input, PageHeader, Select, Textarea } from '../components/ui'
 
 export function VesselPage() {
@@ -31,6 +32,8 @@ export function VesselPage() {
           </div>
         }
       />
+
+      <BeginnerCallout stageIds={['vessel', 'dispatch']} />
 
       <GateBanner
         blocked={blocked}

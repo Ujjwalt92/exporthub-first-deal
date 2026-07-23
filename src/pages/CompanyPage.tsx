@@ -1,4 +1,5 @@
 import { useStore } from '../lib/StoreContext'
+import { BeginnerCallout } from '../components/BeginnerCallout'
 import { Badge, Button, Card, Field, Input, PageHeader } from '../components/ui'
 
 export function CompanyPage() {
@@ -18,6 +19,8 @@ export function CompanyPage() {
           </Button>
         }
       />
+
+      <BeginnerCallout stageIds={['company']} />
 
       <Card className="mb-6 p-5 text-sm leading-7 text-slate-600">
         <Badge tone={c.onboardingDone ? 'green' : 'amber'}>

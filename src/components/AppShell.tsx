@@ -28,6 +28,7 @@ const groups: { title: string; items: { to: string; label: string; icon: typeof 
       title: 'Start',
       items: [
         { to: '/', label: 'Deal Cockpit', icon: LayoutDashboard, end: true },
+        { to: '/beginner', label: 'Absolute Beginner', icon: HelpCircle },
         { to: '/company', label: 'Company Setup', icon: Building2 },
         { to: '/lesson', label: 'Today’s Lesson', icon: BookOpen },
         { to: '/help', label: 'Help / Glossary', icon: HelpCircle },

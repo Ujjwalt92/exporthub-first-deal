@@ -37,6 +37,17 @@ Not a generic ERP — a live guided deal for:
 - **Document Map + CI + Packing List**  
 - **Email Templates + Help/Glossary + Rules/Lesson**
 
+## Absolute beginners
+Open **Absolute Beginner Guide** first:
+- Who to meet (CHA, freight forwarder, vendor, bank, phyto, chamber…)
+- Where/how to find them
+- What to ask in first meeting
+- Rough costing ranges
+- Day-0 to payment journey in plain language
+- Myths vs truth (including CHA ≠ forwarder, FOB ≠ includes ocean freight)
+
+Every major stage also shows a short beginner callout.
+
 ## Deep training (gap-fill layers)
 - **₹ → USD FOB Math** — convert ₹265/kg purchase into FOB USD quote
 - **Sample LC Lab** — clean vs error LC + amendment draft

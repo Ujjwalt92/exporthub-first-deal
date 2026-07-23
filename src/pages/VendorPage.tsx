@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { ShieldAlert } from 'lucide-react'
 import { useStore } from '../lib/StoreContext'
 import { inr } from '../lib/costing'
+import { BeginnerCallout } from '../components/BeginnerCallout'
 import { Badge, Button, Card, Field, Input, PageHeader, Textarea } from '../components/ui'
 
 export function VendorPage() {
@@ -43,6 +44,8 @@ export function VendorPage() {
           </div>
         }
       />
+
+      <BeginnerCallout stageIds={['vendor', 'production', 'quality']} />
 
       {blocked ? (
         <Card className="mb-6 border-rose-200 bg-rose-50 p-5 text-sm text-rose-900">

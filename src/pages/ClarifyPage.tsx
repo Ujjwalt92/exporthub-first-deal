@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useStore } from '../lib/StoreContext'
 import { computeCostSummary } from '../lib/costing'
+import { BeginnerCallout } from '../components/BeginnerCallout'
 import { Badge, Button, Card, Field, PageHeader, Textarea } from '../components/ui'
 
 export function ClarifyPage() {
@@ -24,6 +25,8 @@ export function ClarifyPage() {
           </Link>
         }
       />
+
+      <BeginnerCallout stageIds={['clarify']} />
 
       <Card className="mb-6 border-teal-100 bg-teal-50/60 p-5 text-sm leading-7 text-teal-950">
         <strong>Lesson:</strong> सीधे price भेजना amateur move है। पहले grade, packing, destination,

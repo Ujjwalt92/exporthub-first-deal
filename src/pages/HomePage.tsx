@@ -31,6 +31,9 @@ export function HomePage() {
         subtitle="एक live Teja S17 export deal — नए trader को process सिखाती है, experienced trader को checklist + cost discipline देती है।"
         actions={
           <div className="flex flex-wrap gap-2">
+            <Link to="/beginner">
+              <Button>Absolute Beginner Guide</Button>
+            </Link>
             <Link to="/help">
               <Button variant="secondary">Help / Glossary</Button>
             </Link>
@@ -40,6 +43,19 @@ export function HomePage() {
           </div>
         }
       />
+
+      <Card className="mb-6 border-sky-200 bg-sky-50 p-5 text-sm leading-7 text-sky-950">
+        <div className="font-semibold">New to export? Start here before the deal flow.</div>
+        <p className="mt-2">
+          CHA क्या होता है, freight forwarder कौन होता है (ये flight नहीं — समुद्री shipment के लिए sea
+          forwarder), Guntur में vendor कैसे ढूँढें, बैंक में किससे मिलें, और हर चीज़ का rough खर्चा क्या
+          होता है — सब{' '}
+          <Link className="font-semibold underline" to="/beginner">
+            Absolute Beginner Guide
+          </Link>{' '}
+          में plain English/Hinglish में है। हर stage पर छोटा beginner box भी मिलेगा।
+        </p>
+      </Card>
 
       <div className="mb-6 grid gap-4 lg:grid-cols-4">
         <Card className="p-4">

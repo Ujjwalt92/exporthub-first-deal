@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useStore } from '../lib/StoreContext'
 import { GateBanner, TaskChecklist } from '../components/TaskChecklist'
+import { BeginnerCallout } from '../components/BeginnerCallout'
 import { Button, Card, Field, Input, PageHeader, Textarea } from '../components/ui'
 
 export function CustomsPage() {
@@ -34,6 +35,8 @@ export function CustomsPage() {
           </div>
         }
       />
+
+      <BeginnerCallout stageIds={['customs', 'cha-checklist', 'documents']} />
 
       <GateBanner
         blocked={blocked}

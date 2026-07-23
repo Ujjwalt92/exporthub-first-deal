@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { ShieldAlert } from 'lucide-react'
 import { useStore } from '../lib/StoreContext'
 import type { CheckStatus } from '../types'
+import { BeginnerCallout } from '../components/BeginnerCallout'
 import { Badge, Button, Card, Field, Input, PageHeader, Select, Textarea } from '../components/ui'
 
 const statusTone: Record<CheckStatus, 'slate' | 'green' | 'rose' | 'amber'> = {
@@ -43,6 +44,8 @@ export function PoLcPage() {
           </div>
         }
       />
+
+      <BeginnerCallout stageIds={['po-lc']} />
 
       <Card className="mb-6 border-amber-200 bg-amber-50 p-5 text-sm leading-7 text-amber-950">
         <div className="flex items-start gap-2">

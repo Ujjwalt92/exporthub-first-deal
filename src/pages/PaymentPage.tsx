@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useStore } from '../lib/StoreContext'
 import { usd } from '../lib/costing'
 import { GateBanner, TaskChecklist } from '../components/TaskChecklist'
+import { BeginnerCallout } from '../components/BeginnerCallout'
 import { Button, Card, Field, Input, PageHeader, Textarea } from '../components/ui'
 
 export function PaymentPage() {
@@ -46,6 +47,8 @@ export function PaymentPage() {
           </div>
         }
       />
+
+      <BeginnerCallout stageIds={['payment', 'bank-docs', 'po-lc']} />
 
       <GateBanner
         blocked={blocked}

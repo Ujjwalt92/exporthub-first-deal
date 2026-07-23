@@ -26,6 +26,7 @@ import { QualitySpecsPage } from './pages/QualitySpecsPage'
 import { ChaChecklistPage } from './pages/ChaChecklistPage'
 import { BankDocsPage } from './pages/BankDocsPage'
 import { PostShipmentPage } from './pages/PostShipmentPage'
+import { BeginnerGuidePage } from './pages/BeginnerGuidePage'
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
         <Routes>
           <Route element={<AppShell />}>
             <Route index element={<HomePage />} />
+            <Route path="beginner" element={<BeginnerGuidePage />} />
             <Route path="company" element={<CompanyPage />} />
             <Route path="rules" element={<RulesPage />} />
             <Route path="clarify" element={<ClarifyPage />} />
