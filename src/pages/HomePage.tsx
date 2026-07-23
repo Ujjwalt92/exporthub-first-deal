@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useRef } from 'react'
-import { ArrowRight, CheckCircle2, Circle, Mail, ShieldAlert } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Circle, Mail, ShieldAlert, Sparkles } from 'lucide-react'
 import { useStore } from '../lib/StoreContext'
 import { computeCostSummary, dealProgress, inr, stageLabel, usd } from '../lib/costing'
 import { Badge, Button, Card, PageHeader } from '../components/ui'
@@ -20,123 +19,82 @@ const flow: { to: string; label: string; hint: string }[] = [
 ]
 
 export function HomePage() {
-  const { deal, resetDeal, exportDealJson, importDealJson } = useStore()
+  const { deal } = useStore()
   const summary = computeCostSummary(deal)
   const progress = dealProgress(deal)
   const answered = deal.clarifying.filter((q) => q.answered).length
-  const fileRef = useRef<HTMLInputElement>(null)
   const onboardingDone = !!deal.onboarding.completedAt
   const onboardingProgress = deal.onboarding.checklist.filter((i) => i.done).length
 
   return (
     <div>
       <PageHeader
-        title="Deal cockpit"
-        subtitle="एक live Teja S17 export deal — नए trader को process सिखाती है, experienced trader को checklist + cost discipline देती है।"
+        eyebrow="Deal cockpit"
+        title="Your first live shipment — under control"
+        subtitle="Guided Teja S17 export path for new and growing spice traders. Clarify → cost → PI → LC → ship → get paid."
         actions={
           <div className="flex flex-wrap gap-2">
             <Link to="/start-here">
-              <Button>Start Here</Button>
+              <Button>
+                Start Here
+                <ArrowRight className="h-4 w-4" />
+              </Button>
             </Link>
             <Link to="/report">
               <Button variant="secondary">Completion Report</Button>
             </Link>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                const blob = new Blob([exportDealJson()], { type: 'application/json' })
-                const url = URL.createObjectURL(blob)
-                const a = document.createElement('a')
-                a.href = url
-                a.download = `exporthub-backup.json`
-                a.click()
-                URL.revokeObjectURL(url)
-              }}
-            >
-              Export backup
-            </Button>
-            <Button variant="secondary" onClick={() => fileRef.current?.click()}>
-              Import backup
-            </Button>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="application/json,.json"
-              className="hidden"
-              onChange={async (e) => {
-                const file = e.target.files?.[0]
-                if (!file) return
-                const text = await file.text()
-                const result = importDealJson(text)
-                alert(result.ok ? 'Backup imported' : result.error)
-              }}
-            />
-            <Button variant="secondary" onClick={() => confirm('Reset playbook demo data?') && resetDeal()}>
-              Reset deal
-            </Button>
+            <Link to="/settings">
+              <Button variant="ghost">Backup</Button>
+            </Link>
           </div>
         }
       />
 
-      <Card className="mb-6 border-teal-200 bg-teal-50 p-5 text-sm leading-7 text-teal-950">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="font-semibold">
-            {onboardingDone
-              ? 'Onboarding complete — playbook ready at 100% path'
-              : `Start Here onboarding: ${onboardingProgress}/${deal.onboarding.checklist.length}`}
+      <Card className="mb-6 overflow-hidden border-teal-200/80">
+        <div className="flex flex-col gap-4 bg-gradient-to-br from-teal-50 via-white to-sky-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-teal-700">
+              <Sparkles className="h-3.5 w-3.5" />
+              {onboardingDone ? 'Ready for the deal' : 'Recommended first'}
+            </div>
+            <div className="mt-2 text-sm font-semibold text-slate-900">
+              {onboardingDone
+                ? 'Onboarding complete — run the UAE inquiry with discipline'
+                : `Start Here onboarding · ${onboardingProgress}/${deal.onboarding.checklist.length} done`}
+            </div>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
+              New exporter: finish Start Here + Beginner Guide first. Experienced trader: jump to Cost Sheet or LC
+              review.
+            </p>
           </div>
-          <Badge tone={onboardingDone ? 'green' : 'amber'}>
-            {onboardingDone ? 'Ready' : 'Do this first'}
-          </Badge>
+          <Badge tone={onboardingDone ? 'green' : 'amber'}>{onboardingDone ? 'Ready' : 'Do this first'}</Badge>
         </div>
-        <p className="mt-2">
-          New person: pehle <Link className="font-semibold underline" to="/start-here">Start Here</Link> +{' '}
-          <Link className="font-semibold underline" to="/beginner">Absolute Beginner</Link>. Experienced
-          person: directly cost sheet / LC flow.
-        </p>
       </Card>
 
-      <div className="mb-6 grid gap-4 lg:grid-cols-4">
-        <Card className="p-4">
-          <div className="text-xs uppercase tracking-wide text-slate-500">Progress</div>
-          <div className="mt-2 text-2xl font-semibold">{progress.pct}%</div>
-          <div className="mt-1 text-xs text-slate-500">
-            {progress.doneCount}/{progress.total} milestones
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-xs uppercase tracking-wide text-slate-500">Stage</div>
-          <div className="mt-2 text-sm font-semibold">{stageLabel(deal.stage)}</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-xs uppercase tracking-wide text-slate-500">Suggested FOB</div>
-          <div className="mt-2 text-sm font-semibold">{usd(summary.unitPriceUsd)}/kg</div>
-          <div className="mt-1 text-xs text-slate-500">{usd(summary.totalUsd)} total</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-xs uppercase tracking-wide text-slate-500">INR target</div>
-          <div className="mt-2 text-sm font-semibold">{inr(summary.targetRevenueInr)}</div>
-          <div className="mt-1 text-xs text-slate-500">incl. contingency + margin</div>
-        </Card>
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Metric label="Progress" value={`${progress.pct}%`} hint={`${progress.doneCount}/${progress.total} milestones`} />
+        <Metric label="Stage" value={stageLabel(deal.stage)} hint="Current gate in the playbook" />
+        <Metric label="Suggested FOB" value={`${usd(summary.unitPriceUsd)}/kg`} hint={`${usd(summary.totalUsd)} total`} />
+        <Metric label="INR target" value={inr(summary.targetRevenueInr)} hint="Incl. contingency + margin" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="p-5 lg:col-span-2">
           <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900">
             <Mail className="h-4 w-4 text-teal-700" />
-            Buyer inquiry
+            Morning buyer inquiry
           </div>
-          <pre className="whitespace-pre-wrap rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-700">
+          <pre className="whitespace-pre-wrap rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-6 text-slate-700">
             {deal.inquiryEmail}
           </pre>
-          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
             <div className="flex items-start gap-2">
               <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
               <div>
-                <div className="font-semibold">नए exporter की सबसे बड़ी गलती</div>
-                <div className="mt-1 leading-6">
-                  तुरंत rate बता देना। Experienced exporter पहले clarify करता है, cost sheet बनाता है, फिर
-                  FOB lock करके PI भेजता है।
+                <div className="font-semibold">#1 mistake this product prevents</div>
+                <div className="mt-1 leading-6 text-amber-900/90">
+                  Sending a FOB rate on WhatsApp before clarify + cost sheet. Professionals lock numbers first, then
+                  issue a Proforma Invoice.
                 </div>
               </div>
             </div>
@@ -164,19 +122,31 @@ export function HomePage() {
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-8 mb-3 flex items-end justify-between gap-3">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Deal flow</div>
+          <div className="mt-1 text-sm font-semibold text-slate-900">Eleven gated steps to FIRC</div>
+        </div>
+        <Link to="/pricing" className="text-xs font-medium text-teal-700 hover:underline">
+          How we sell this →
+        </Link>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {flow.map((step, idx) => (
-          <Card key={step.to} className="p-5">
-            <div className="text-xs font-medium text-slate-500">Step {idx + 1}</div>
-            <div className="mt-1 text-sm font-semibold text-slate-900">{step.label}</div>
-            <div className="mt-1 text-xs text-slate-500">{step.hint}</div>
-            <Link to={step.to} className="mt-4 inline-flex">
-              <Button variant="secondary">
+          <Link key={step.to} to={step.to} className="group">
+            <Card className="h-full p-5 transition group-hover:-translate-y-0.5 group-hover:border-teal-200 group-hover:shadow-md">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                Step {String(idx + 1).padStart(2, '0')}
+              </div>
+              <div className="mt-1.5 text-sm font-semibold text-slate-900">{step.label}</div>
+              <div className="mt-1 text-xs text-slate-500">{step.hint}</div>
+              <div className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-teal-700">
                 Open
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </Card>
+                <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+              </div>
+            </Card>
+          </Link>
         ))}
       </div>
 
@@ -195,9 +165,19 @@ export function HomePage() {
   )
 }
 
+function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
+  return (
+    <Card className="p-4">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">{label}</div>
+      <div className="mt-2 text-xl font-semibold tracking-tight text-slate-900">{value}</div>
+      <div className="mt-1 text-xs text-slate-500">{hint}</div>
+    </Card>
+  )
+}
+
 function Snap({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-slate-50 px-3 py-3">
+    <div className="rounded-xl border border-slate-100 bg-slate-50/80 px-3 py-3">
       <div className="text-xs text-slate-500">{label}</div>
       <div className="mt-1 font-medium text-slate-900">{value}</div>
     </div>

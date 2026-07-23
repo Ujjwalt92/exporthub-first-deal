@@ -1,24 +1,54 @@
-# ExportHub — First Deal Playbook
+# ExportHub — First Deal OS
 
-A practical export workspace for **new and existing traders**.
+A **sellable guided export workspace** for Indian spice traders — not a generic ERP.
 
-Not a generic ERP — a live guided deal for:
+Live demo deal:
 
 **Teja S17 Stemless Super Deluxe Red Chilli**  
 1 × 20 ft · 12,000 kg · 25 kg PP bags · FOB JNPT → Jebel Ali · LC at Sight
 
-## Who it helps
+## Live demo
 
-### New traders
-- Learn the full path: inquire → clarify → cost → PI → PO/LC → vendor → production → dispatch → customs → vessel → payment
-- Avoid the #1 mistake: quoting before costing
-- Glossary + email templates + stage gates
+https://ujjwalt92.github.io/exporthub-first-deal/
 
-### Existing traders
-- Disciplined cost sheet (Estimated / Quoted / Actual Paid)
-- LC line-by-line review before production
-- Document map + printable PI / Commercial Invoice / Packing List
-- Milestone cockpit for one live shipment
+- Marketing + pricing: `/#/` and `/#/pricing`
+- Product workspace: `/#/workspace`
+
+## How to sell this
+
+**One-line pitch:**  
+“ExportHub stops you from sending a FOB rate before costs and LC are safe — then walks the shipment to payment.”
+
+**Who buys first**
+- New IEC holders / first-time exporters
+- Small spice trading houses (Guntur, Unjha, Delhi)
+- Export coaches who need a client onboarding OS
+- CHA desks packaging a client playbook
+
+**Offer now**
+| Plan | Price | Why it closes |
+|------|-------|----------------|
+| Demo | Free | 8-minute phone demo of the UAE Teja deal |
+| Founding Trader | ₹14,999 one-time (first 100) | Lifetime seat while product is early |
+| Pro Workspace | ₹4,999/mo (roadmap) | Multi-deal + cloud + team |
+
+Sell the **outcome** (margin protection + process), not “React screens”.
+
+## Product surface
+
+### Marketing
+- Landing page with problem / product / sell framing
+- Pricing page with founding offer + sales script
+
+### Workspace
+- Deal cockpit with progress, gates, milestone tracker
+- Start Here + Absolute Beginner Guide
+- Company setup, rules, clarify, triple cost sheet
+- PI / CI / Packing List + email templates
+- PO/LC review, vendor, production, dispatch, customs, vessel, payment
+- Training labs: FOB math, sample LC, quality, CHA packet, bank docs, post-shipment
+- Settings: JSON backup export/import + demo reset
+- Mobile drawer + bottom tabs (iPhone Safari friendly)
 
 ## Playbook rules
 1. Never send final price until cost checklist is complete  
@@ -28,48 +58,14 @@ Not a generic ERP — a live guided deal for:
 5. Never produce/ship before reading LC fully  
 6. Documents = Payment  
 
-## App map
-- **Deal Cockpit** — progress + inquiry + milestones  
-- **Company Setup** — IEC, GST, bank, RCMC  
-- **Buyer Clarify / Cost Sheet / PI**  
-- **PO-LC Review / Vendor Confirm**  
-- **Production / Dispatch / Customs / Vessel / Payment**  
-- **Document Map + CI + Packing List**  
-- **Email Templates + Help/Glossary + Rules/Lesson**
+## Honest status
 
-## Absolute beginners
-1. First open shows a **Welcome gate**
-2. Complete **Start Here** checklist + first-call scripts
-3. Read **Absolute Beginner Guide** (who/where/costing/myths)
-4. Then run the live UAE Teja deal
+This build is a polished **First Deal OS demo** — strong enough to sell founding access and workshops.  
+Not yet multi-tenant SaaS (auth, billing, multi-deal cloud). Those are Pro Workspace roadmap items.
 
-Also includes:
-- Completion Report (print + lessons)
-- Deal backup Export/Import JSON
-
-## Absolute beginners (detail)
-Open **Absolute Beginner Guide**:
-- Who to meet (CHA, freight forwarder, vendor, bank, phyto, chamber…)
-- Where/how to find them
-- What to ask in first meeting
-- Rough costing ranges
-- Day-0 to payment journey in plain language
-- Myths vs truth (including CHA ≠ forwarder, FOB ≠ includes ocean freight)
-
-Every major stage also shows a short beginner callout.
-
-## Deep training (gap-fill layers)
-- **₹ → USD FOB Math** — convert ₹265/kg purchase into FOB USD quote
-- **Sample LC Lab** — clean vs error LC + amendment draft
-- **Teja Quality Specs** — moisture, stemless, broken, ASTA, pesticide
-- **CHA / SB Packet** — ICEGATE-oriented customs file checklist
-- **Bank Docs Matcher** — document set vs LC clauses (Rule 6)
-- **Post-shipment** — discrepancy playbook + RoDTEP/drawback/e-BRC tracking
-
-## Run
+## Run locally
 
 ```bash
-cd exporter-app
 npm install
 npm run dev
 ```
@@ -80,4 +76,4 @@ npm run dev
 npm run build
 ```
 
-Data persists in browser `localStorage` (`exporthub-first-deal-v3`).
+Data persists in browser `localStorage` (`exporthub-first-deal-v5`).

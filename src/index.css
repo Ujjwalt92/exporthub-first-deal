@@ -2,9 +2,28 @@
 
 :root {
   color-scheme: light;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  background: #f8fafc;
-  color: #0f172a;
+  --eh-ink: #0b1220;
+  --eh-muted: #64748b;
+  --eh-brand: #0f766e;
+  --eh-brand-deep: #115e59;
+  --eh-surface: #f4f7fb;
+  --eh-card: #ffffff;
+  --eh-line: #e2e8f0;
+  --eh-glow: rgba(15, 118, 110, 0.14);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  background: var(--eh-surface);
+  color: var(--eh-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
@@ -14,7 +33,10 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: #f8fafc;
+  background:
+    radial-gradient(1200px 500px at 10% -10%, rgba(15, 118, 110, 0.08), transparent 55%),
+    radial-gradient(900px 400px at 90% 0%, rgba(14, 165, 233, 0.06), transparent 50%),
+    var(--eh-surface);
 }
 
 #root {
@@ -26,6 +48,38 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+::selection {
+  background: rgba(15, 118, 110, 0.18);
+}
+
+.eh-grid-bg {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.eh-hero-glow {
+  box-shadow:
+    0 0 0 1px rgba(15, 118, 110, 0.08),
+    0 24px 60px -28px rgba(15, 23, 42, 0.35);
+}
+
+@keyframes eh-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.eh-toast {
+  animation: eh-toast-in 0.2s ease-out;
 }
 
 @media print {

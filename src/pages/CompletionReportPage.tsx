@@ -126,7 +126,7 @@ export function CompletionReportPage() {
           ))}
         </ol>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Link to="/">
+          <Link to="/workspace">
             <Button variant="secondary">Back to cockpit</Button>
           </Link>
           <Link to="/post-shipment">
