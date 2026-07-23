@@ -63,11 +63,15 @@ const Ctx = createContext<Store | null>(null)
 
 function load(): DealData {
   try {
+    // migrate away from older keys that can crash new screens
+    ;['exporthub-data-v1', 'exporthub-first-deal-v1', 'exporthub-first-deal-v2', 'exporthub-first-deal-v3'].forEach(
+      (k) => localStorage.removeItem(k),
+    )
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return createInitialDeal()
     const parsed = JSON.parse(raw) as Partial<DealData>
     const base = createInitialDeal()
-    return {
+    const merged: DealData = {
       ...base,
       ...parsed,
       company: { ...base.company, ...(parsed.company ?? {}) },
@@ -107,9 +111,16 @@ function load(): DealData {
       onboarding: {
         ...base.onboarding,
         ...(parsed.onboarding ?? {}),
-        checklist: parsed.onboarding?.checklist ?? base.onboarding.checklist,
+        checklist:
+          parsed.onboarding?.checklist?.length
+            ? parsed.onboarding.checklist
+            : base.onboarding.checklist,
       },
     }
+    if (!merged.onboarding?.checklist?.length) {
+      merged.onboarding = base.onboarding
+    }
+    return merged
   } catch {
     return createInitialDeal()
   }

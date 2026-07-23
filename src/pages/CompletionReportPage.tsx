@@ -35,7 +35,7 @@ export function CompletionReportPage() {
                 const url = URL.createObjectURL(blob)
                 const a = document.createElement('a')
                 a.href = url
-                a.download = `exporthub-deal-${deal.piNumber.replaceAll('/', '-')}.json`
+                a.download = `exporthub-deal-${deal.piNumber.split('/').join('-')}.json`
                 a.click()
                 URL.revokeObjectURL(url)
               }}
