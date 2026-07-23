@@ -1,26 +1,35 @@
-# ExportHub — Exporter Management App
+# ExportHub — First Deal Playbook
 
-A lightweight web app for exporters to manage buyers, products, shipments, and generate **Commercial Invoices** and **Packing Lists**.
+Live export training project (not a generic ERP).
 
-## Features
+## The deal
 
-- Dashboard with open shipment pipeline
-- Buyer (consignee) management
-- Product catalog with HS codes, weights, and CBM
-- Shipment workflow with Incoterms, ports, ETD/ETA
-- One-click Commercial Invoice + Packing List generation
-- Print / Save as PDF from the browser
-- Company profile (GSTIN, IEC, bank details)
-- Local demo data saved in browser `localStorage`
+UAE buyer asks for best price on **1 × 20 ft container Teja S17 Stemless Red Chilli**.
 
-## Tech stack
+Seller: **Tiwari's Spices International**  
+Route: **FOB JNPT → Jebel Ali**  
+Qty: **12,000 kg** in **25 kg PP bags (480 bags)**  
+Payment: **Irrevocable LC at Sight**  
+HSN: **09042120**
 
-- React + TypeScript
-- Vite
-- Tailwind CSS v4
-- React Router
+## Playbook rules baked into the app
 
-## Getting started
+1. **Never send final price** until the quotation checklist / cost sheet is complete.
+2. Every cost has **Estimated → Quoted → Actual Paid**.
+4. **Proforma Invoice first**; Commercial Invoice only at dispatch.
+5. **Never start production/shipment** before reading the LC fully.
+
+## App sections
+
+- **Deal Home** — morning UAE email + stage snapshot
+- **Playbook Rules**
+- **Buyer Clarify** — ask before you quote
+- **Cost Sheet** — INR working sheet + USD FOB suggestion
+- **Proforma Invoice** — unit price stays empty until cost lock
+- **Document Map** — IEC, RCMC, PI, PO, LC, CI, PL, SB, Phyto, COO, B/L…
+- **Today’s Lesson** — the core teaching moment
+
+## Run
 
 ```bash
 cd exporter-app
@@ -28,16 +37,10 @@ npm install
 npm run dev
 ```
 
-Open the URL shown in the terminal (usually `http://localhost:5173`).
-
 ## Build
 
 ```bash
 npm run build
-npm run preview
 ```
 
-## Notes
-
-- Data stays in your browser; use **Company → Reset demo data** to restore sample records.
-- The ChatGPT share link from the original request could not be read (JS/Cloudflare protected), so this MVP was built from a standard exporter workflow: buyers → products → shipments → documents.
+Data is stored in browser `localStorage`.

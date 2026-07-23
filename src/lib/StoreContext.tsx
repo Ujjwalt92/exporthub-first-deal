@@ -1,104 +1,112 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import type { AppData, Buyer, CompanyProfile, Product, Shipment } from '../types'
-import { loadData, resetData, saveData, uid } from './store'
+import { createInitialDeal } from '../data/playbook'
+import type { ClarifyingQuestion, CostLine, DealData, DealStage, DocumentNode } from '../types'
+import { computeCostSummary } from './costing'
 
-interface AppStore {
-  data: AppData
-  updateCompany: (company: CompanyProfile) => void
-  addBuyer: (buyer: Omit<Buyer, 'id' | 'createdAt'>) => void
-  updateBuyer: (buyer: Buyer) => void
-  deleteBuyer: (id: string) => void
-  addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => void
-  updateProduct: (product: Product) => void
-  deleteProduct: (id: string) => void
-  addShipment: (shipment: Omit<Shipment, 'id' | 'createdAt' | 'updatedAt'>) => void
-  updateShipment: (shipment: Shipment) => void
-  deleteShipment: (id: string) => void
-  resetDemoData: () => AppData
+const STORAGE_KEY = 'exporthub-first-deal-v1'
+
+interface Store {
+  deal: DealData
+  setStage: (stage: DealStage) => void
+  updateClarifying: (id: string, patch: Partial<ClarifyingQuestion>) => void
+  updateCost: (id: string, patch: Partial<CostLine['money']> & { notes?: string }) => void
+  updateDeal: (patch: Partial<DealData>) => void
+  updateDocument: (id: string, patch: Partial<DocumentNode>) => void
+  applySuggestedUnitPrice: () => void
+  resetDeal: () => void
 }
 
-const StoreContext = createContext<AppStore | null>(null)
+const Ctx = createContext<Store | null>(null)
+
+function load(): DealData {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return createInitialDeal()
+    return { ...createInitialDeal(), ...JSON.parse(raw) }
+  } catch {
+    return createInitialDeal()
+  }
+}
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<AppData>(() => loadData())
+  const [deal, setDeal] = useState<DealData>(() => load())
 
   useEffect(() => {
-    saveData(data)
-  }, [data])
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(deal))
+  }, [deal])
 
-  const value = useMemo<AppStore>(
+  const value = useMemo<Store>(
     () => ({
-      data,
-      updateCompany: (company) => setData((prev) => ({ ...prev, company })),
-      addBuyer: (buyer) =>
-        setData((prev) => ({
-          ...prev,
-          buyers: [...prev.buyers, { ...buyer, id: uid('buyer'), createdAt: new Date().toISOString() }],
-        })),
-      updateBuyer: (buyer) =>
-        setData((prev) => ({
-          ...prev,
-          buyers: prev.buyers.map((b) => (b.id === buyer.id ? buyer : b)),
-        })),
-      deleteBuyer: (id) =>
-        setData((prev) => ({
-          ...prev,
-          buyers: prev.buyers.filter((b) => b.id !== id),
-        })),
-      addProduct: (product) =>
-        setData((prev) => ({
-          ...prev,
-          products: [...prev.products, { ...product, id: uid('prod'), createdAt: new Date().toISOString() }],
-        })),
-      updateProduct: (product) =>
-        setData((prev) => ({
-          ...prev,
-          products: prev.products.map((p) => (p.id === product.id ? product : p)),
-        })),
-      deleteProduct: (id) =>
-        setData((prev) => ({
-          ...prev,
-          products: prev.products.filter((p) => p.id !== id),
-        })),
-      addShipment: (shipment) =>
-        setData((prev) => ({
-          ...prev,
-          shipments: [
-            {
-              ...shipment,
-              id: uid('ship'),
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-            ...prev.shipments,
-          ],
-        })),
-      updateShipment: (shipment) =>
-        setData((prev) => ({
-          ...prev,
-          shipments: prev.shipments.map((s) =>
-            s.id === shipment.id ? { ...shipment, updatedAt: new Date().toISOString() } : s,
+      deal,
+      setStage: (stage) => setDeal((d) => ({ ...d, stage })),
+      updateClarifying: (id, patch) =>
+        setDeal((d) => ({
+          ...d,
+          clarifying: d.clarifying.map((q) =>
+            q.id === id
+              ? {
+                  ...q,
+                  ...patch,
+                  answered:
+                    patch.answered ??
+                    (patch.answer != null ? patch.answer.trim().length > 0 : q.answered),
+                }
+              : q,
           ),
         })),
-      deleteShipment: (id) =>
-        setData((prev) => ({
-          ...prev,
-          shipments: prev.shipments.filter((s) => s.id !== id),
+      updateCost: (id, patch) =>
+        setDeal((d) => ({
+          ...d,
+          costs: d.costs.map((c) =>
+            c.id === id
+              ? {
+                  ...c,
+                  money: {
+                    ...c.money,
+                    estimatedInr:
+                      'estimatedInr' in patch ? (patch.estimatedInr ?? null) : c.money.estimatedInr,
+                    quotedInr: 'quotedInr' in patch ? (patch.quotedInr ?? null) : c.money.quotedInr,
+                    actualPaidInr:
+                      'actualPaidInr' in patch ? (patch.actualPaidInr ?? null) : c.money.actualPaidInr,
+                    notes: 'notes' in patch ? patch.notes : c.money.notes,
+                  },
+                }
+              : c,
+          ),
         })),
-      resetDemoData: () => {
-        const next = resetData()
-        setData(next)
-        return next
+      updateDeal: (patch) => setDeal((d) => ({ ...d, ...patch })),
+      updateDocument: (id, patch) =>
+        setDeal((d) => ({
+          ...d,
+          documents: d.documents.map((doc) => (doc.id === id ? { ...doc, ...patch } : doc)),
+        })),
+      applySuggestedUnitPrice: () =>
+        setDeal((d) => {
+          const summary = computeCostSummary(d)
+          if (!summary.canSendFinalPrice) return d
+          return {
+            ...d,
+            unitPriceUsd: Number(summary.unitPriceUsd.toFixed(2)),
+            stage: 'proforma',
+            documents: d.documents.map((doc) =>
+              doc.id === 'pi' ? { ...doc, status: 'ready' } : doc,
+            ),
+          }
+        }),
+      resetDeal: () => {
+        const next = createInitialDeal()
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+        setDeal(next)
       },
     }),
-    [data],
+    [deal],
   )
 
-  return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
 
 export function useStore() {
-  const ctx = useContext(StoreContext)
-  if (!ctx) throw new Error('useStore must be used within StoreProvider')
+  const ctx = useContext(Ctx)
+  if (!ctx) throw new Error('Store missing')
   return ctx
 }

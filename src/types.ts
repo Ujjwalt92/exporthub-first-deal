@@ -1,106 +1,93 @@
-export type Currency = 'USD' | 'EUR' | 'GBP' | 'INR' | 'AED'
+export type DealStage =
+  | 'inquiry'
+  | 'clarify'
+  | 'costing'
+  | 'proforma'
+  | 'po_lc'
+  | 'vendor'
+  | 'production'
+  | 'dispatch'
+  | 'customs'
+  | 'vessel'
+  | 'payment'
+  | 'closed'
 
-export type ShipmentStatus =
-  | 'draft'
-  | 'confirmed'
-  | 'in_production'
-  | 'ready_to_ship'
-  | 'shipped'
-  | 'delivered'
-  | 'cancelled'
+export type CostStatus = 'pending' | 'estimated' | 'quoted' | 'locked'
 
-export type Incoterm =
-  | 'EXW'
-  | 'FCA'
-  | 'FOB'
-  | 'CFR'
-  | 'CIF'
-  | 'CPT'
-  | 'CIP'
-  | 'DAP'
-  | 'DDP'
-
-export interface CompanyProfile {
-  name: string
-  address: string
-  city: string
-  state: string
-  country: string
-  postalCode: string
-  email: string
-  phone: string
-  gstin: string
-  iec: string
-  bankName: string
-  bankAccount: string
-  bankSwift: string
-  bankIfsc: string
-}
-
-export interface Buyer {
-  id: string
-  name: string
-  company: string
-  email: string
-  phone: string
-  address: string
-  city: string
-  country: string
-  postalCode: string
-  currency: Currency
+export interface MoneyTriple {
+  estimatedInr: number | null
+  quotedInr: number | null
+  actualPaidInr: number | null
   notes?: string
-  createdAt: string
 }
 
-export interface Product {
+export interface CostLine {
   id: string
-  sku: string
+  label: string
+  category: 'product' | 'packing' | 'inland' | 'port' | 'docs' | 'finance' | 'freight' | 'margin'
+  unit?: string
+  money: MoneyTriple
+  requiredForQuote: boolean
+}
+
+export interface ClarifyingQuestion {
+  id: string
+  question: string
+  why: string
+  answer: string
+  answered: boolean
+}
+
+export interface PlaybookRule {
+  id: string
+  number: number
+  title: string
+  body: string
+}
+
+export interface DocumentNode {
+  id: string
   name: string
-  description: string
-  hsCode: string
-  unit: string
-  unitPrice: number
-  currency: Currency
-  netWeightKg: number
-  grossWeightKg: number
-  cbm: number
-  createdAt: string
+  stage: string
+  side: 'exporter_basic' | 'buyer' | 'sales' | 'logistics' | 'customs' | 'banking'
+  shortIntro: string
+  whenNeeded: string
+  status: 'not_started' | 'in_progress' | 'ready' | 'received' | 'locked'
 }
 
-export interface ShipmentLine {
-  productId: string
-  quantity: number
-  unitPrice: number
-  packages: number
-  netWeightKg: number
-  grossWeightKg: number
-  cbm: number
+export interface DealData {
+  companyName: string
+  buyerName: string
+  productName: string
+  hsnCode: string
+  quantityKg: number
+  bagSizeKg: number
+  container: string
+  packing: string
+  totalBags: number
+  incoterm: string
+  portOfLoading: string
+  portOfDischarge: string
+  paymentTerms: string
+  shipmentWindow: string
+  offerValidityDays: number
+  currencyQuote: 'USD'
+  fxInrPerUsd: number
+  vendorPricePerKgInr: number
+  desiredMarginPct: number
+  contingencyPct: number
+  unitPriceUsd: number | null
+  stage: DealStage
+  inquiryEmail: string
+  clarifying: ClarifyingQuestion[]
+  costs: CostLine[]
+  rules: PlaybookRule[]
+  documents: DocumentNode[]
+  piNumber: string
+  piDate: string
+  specialTestsNote: string
 }
 
-export interface Shipment {
-  id: string
-  reference: string
-  buyerId: string
-  status: ShipmentStatus
-  currency: Currency
-  incoterm: Incoterm
-  originPort: string
-  destinationPort: string
-  vesselOrFlight?: string
-  etd?: string
-  eta?: string
-  invoiceNumber: string
-  invoiceDate: string
-  packingListNumber: string
-  lines: ShipmentLine[]
-  notes?: string
-  createdAt: string
-  updatedAt: string
-}
-
-export interface AppData {
-  company: CompanyProfile
-  buyers: Buyer[]
-  products: Product[]
-  shipments: Shipment[]
+export interface AppState {
+  deal: DealData
 }
