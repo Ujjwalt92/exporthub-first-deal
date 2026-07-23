@@ -1,4 +1,5 @@
-import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { HashRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { AuthProvider, useAuth } from './lib/AuthContext'
 import { StoreProvider } from './lib/StoreContext'
 import { ToastProvider } from './components/Toast'
 import { AppShell } from './components/AppShell'
@@ -33,50 +34,97 @@ import { BeginnerGuidePage } from './pages/BeginnerGuidePage'
 import { StartHerePage } from './pages/StartHerePage'
 import { CompletionReportPage } from './pages/CompletionReportPage'
 import { SettingsPage } from './pages/SettingsPage'
+import { LoginPage, SignupPage } from './pages/LoginPage'
+import { DashboardPage } from './pages/DashboardPage'
+import { BillingPage, TeamPage } from './pages/BillingPage'
+import { AcceptInvitePage } from './pages/AcceptInvitePage'
+
+function RequireAuth() {
+  const { user, bootstrapping } = useAuth()
+  if (bootstrapping) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-sm text-slate-500">
+        Starting ExportHub…
+      </div>
+    )
+  }
+  if (!user) return <Navigate to="/login" replace />
+  return <Outlet />
+}
+
+function RequireDeal() {
+  const { activeDealId, deals, bootstrapping } = useAuth()
+  if (bootstrapping) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-sm text-slate-500">
+        Loading deal…
+      </div>
+    )
+  }
+  if (!activeDealId) {
+    if (deals[0]) return <Navigate to="/app" replace />
+    return <Navigate to="/app" replace />
+  }
+  return (
+    <StoreProvider>
+      <AppShell />
+    </StoreProvider>
+  )
+}
 
 export default function App() {
   return (
-    <StoreProvider>
+    <AuthProvider>
       <ToastProvider>
         <HashRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/pricing" element={<PricingPage />} />
-            <Route element={<AppShell />}>
-              <Route path="workspace" element={<HomePage />} />
-              <Route path="start-here" element={<StartHerePage />} />
-              <Route path="beginner" element={<BeginnerGuidePage />} />
-              <Route path="company" element={<CompanyPage />} />
-              <Route path="report" element={<CompletionReportPage />} />
-              <Route path="settings" element={<SettingsPage />} />
-              <Route path="rules" element={<RulesPage />} />
-              <Route path="clarify" element={<ClarifyPage />} />
-              <Route path="cost-sheet" element={<CostSheetPage />} />
-              <Route path="fob-math" element={<FobMathPage />} />
-              <Route path="proforma" element={<ProformaPage />} />
-              <Route path="po-lc" element={<PoLcPage />} />
-              <Route path="sample-lc" element={<SampleLcPage />} />
-              <Route path="vendor" element={<VendorPage />} />
-              <Route path="production" element={<ProductionPage />} />
-              <Route path="quality" element={<QualitySpecsPage />} />
-              <Route path="dispatch" element={<DispatchPage />} />
-              <Route path="customs" element={<CustomsPage />} />
-              <Route path="cha-checklist" element={<ChaChecklistPage />} />
-              <Route path="vessel" element={<VesselPage />} />
-              <Route path="payment" element={<PaymentPage />} />
-              <Route path="bank-docs" element={<BankDocsPage />} />
-              <Route path="post-shipment" element={<PostShipmentPage />} />
-              <Route path="documents" element={<DocumentsPage />} />
-              <Route path="documents/commercial-invoice" element={<CommercialInvoicePage />} />
-              <Route path="documents/packing-list" element={<PackingListPage />} />
-              <Route path="templates" element={<TemplatesPage />} />
-              <Route path="help" element={<HelpPage />} />
-              <Route path="lesson" element={<LessonPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+
+            <Route element={<RequireAuth />}>
+              <Route path="/app" element={<DashboardPage />} />
+              <Route path="/app/billing" element={<BillingPage />} />
+              <Route path="/app/team" element={<TeamPage />} />
+              <Route path="/accept-invite" element={<AcceptInvitePage />} />
+              <Route element={<RequireDeal />}>
+                <Route path="workspace" element={<HomePage />} />
+                <Route path="start-here" element={<StartHerePage />} />
+                <Route path="beginner" element={<BeginnerGuidePage />} />
+                <Route path="company" element={<CompanyPage />} />
+                <Route path="report" element={<CompletionReportPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="rules" element={<RulesPage />} />
+                <Route path="clarify" element={<ClarifyPage />} />
+                <Route path="cost-sheet" element={<CostSheetPage />} />
+                <Route path="fob-math" element={<FobMathPage />} />
+                <Route path="proforma" element={<ProformaPage />} />
+                <Route path="po-lc" element={<PoLcPage />} />
+                <Route path="sample-lc" element={<SampleLcPage />} />
+                <Route path="vendor" element={<VendorPage />} />
+                <Route path="production" element={<ProductionPage />} />
+                <Route path="quality" element={<QualitySpecsPage />} />
+                <Route path="dispatch" element={<DispatchPage />} />
+                <Route path="customs" element={<CustomsPage />} />
+                <Route path="cha-checklist" element={<ChaChecklistPage />} />
+                <Route path="vessel" element={<VesselPage />} />
+                <Route path="payment" element={<PaymentPage />} />
+                <Route path="bank-docs" element={<BankDocsPage />} />
+                <Route path="post-shipment" element={<PostShipmentPage />} />
+                <Route path="documents" element={<DocumentsPage />} />
+                <Route path="documents/commercial-invoice" element={<CommercialInvoicePage />} />
+                <Route path="documents/packing-list" element={<PackingListPage />} />
+                <Route path="templates" element={<TemplatesPage />} />
+                <Route path="help" element={<HelpPage />} />
+                <Route path="lesson" element={<LessonPage />} />
+              </Route>
             </Route>
+
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </HashRouter>
       </ToastProvider>
-    </StoreProvider>
+    </AuthProvider>
   )
 }

@@ -8,8 +8,8 @@ const plans = [
     price: 'Free',
     period: 'forever on this build',
     blurb: 'Use the live Teja deal workspace to learn and demo the product.',
-    cta: 'Open workspace',
-    to: '/workspace',
+    cta: 'Create free account',
+    to: '/signup',
     featured: false,
     items: [
       'Full first-deal playbook (1 demo shipment)',
@@ -24,7 +24,7 @@ const plans = [
     period: 'one-time · first 100 seats',
     blurb: 'Best offer while the product is early. Lifetime seat on First Deal OS v1.',
     cta: 'Claim founding seat',
-    to: '/workspace',
+    to: '/signup',
     featured: true,
     items: [
       'Everything in Demo',
@@ -39,8 +39,8 @@ const plans = [
     price: '₹4,999',
     period: '/ month · coming next',
     blurb: 'For traders running multiple live deals with team access.',
-    cta: 'Join waitlist via demo',
-    to: '/workspace',
+    cta: 'Start Pro path',
+    to: '/signup',
     featured: false,
     items: [
       'Multi-deal CRM (roadmap)',
@@ -78,8 +78,8 @@ export function PricingPage() {
             </div>
             <div className="text-sm font-semibold">ExportHub Pricing</div>
           </Link>
-          <Link to="/workspace">
-            <Button size="sm">Open app</Button>
+          <Link to="/signup">
+            <Button size="sm">Start free</Button>
           </Link>
         </div>
       </header>
@@ -142,12 +142,14 @@ export function PricingPage() {
           ))}
         </div>
 
-        <Card className="mt-10 border-amber-200 bg-amber-50 p-5 text-sm leading-7 text-amber-950">
-          <div className="font-semibold">Honest product status</div>
+        <Card className="mt-10 border-teal-200 bg-teal-50 p-5 text-sm leading-7 text-teal-950">
+          <div className="font-semibold">SaaS status</div>
           <p className="mt-1">
-            This build is a polished <span className="font-medium">First Deal OS demo</span> — strong enough to
-            sell founding access and coach workshops. It is not yet a multi-tenant SaaS (auth, billing, multi-deal
-            cloud). Sell the outcome now; ship Pro Workspace features next.
+            Auth, multi-deal workspaces, team invites, plan limits, and cloud sync API are live. Use{' '}
+            <Link className="font-semibold underline" to="/signup">
+              Create free workspace
+            </Link>{' '}
+            to sell Founding seats today. Attach Razorpay/Stripe webhooks before collecting card payments at scale.
           </p>
         </Card>
       </section>

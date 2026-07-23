@@ -24,6 +24,7 @@ import {
   X,
 } from 'lucide-react'
 import { useStore } from '../lib/StoreContext'
+import { useAuth } from '../lib/AuthContext'
 import { computeCostSummary, dealProgress, stageLabel } from '../lib/costing'
 import { Badge, Button } from './ui'
 import { WelcomeGate } from './WelcomeGate'
@@ -95,7 +96,8 @@ const mobilePrimary = [
 ]
 
 export function AppShell() {
-  const { deal } = useStore()
+  const { deal, syncState, dealLoading } = useStore()
+  const { user, workspace, mode, logout } = useAuth()
   const summary = computeCostSummary(deal)
   const progress = dealProgress(deal)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -159,14 +161,28 @@ export function AppShell() {
           </nav>
 
           <div className="space-y-2 border-t border-slate-200 p-4 text-xs">
-            <div className="font-medium text-slate-800">{deal.company.legalName || deal.companyName}</div>
+            <div className="font-medium text-slate-800">{workspace?.name || deal.company.legalName}</div>
+            <div className="text-slate-500">{user?.email}</div>
             <div className="text-slate-500">{stageLabel(deal.stage)}</div>
             <Badge tone={summary.canSendFinalPrice ? 'green' : 'amber'}>
               {summary.canSendFinalPrice ? 'Quote unlocked' : 'Rule 1: no final price yet'}
             </Badge>
-            <Link to="/pricing" className="mt-2 inline-flex text-[11px] font-medium text-teal-700 hover:underline">
-              View pricing / sell script
-            </Link>
+            <Badge tone={mode === 'cloud' ? 'teal' : 'amber'}>{mode === 'cloud' ? 'Cloud sync' : 'Local vault'}</Badge>
+            <div className="flex flex-col gap-2 pt-1">
+              <Link to="/app" className="font-medium text-teal-700 hover:underline">
+                All deals dashboard
+              </Link>
+              <Link to="/app/billing" className="text-slate-600 hover:underline">
+                Billing · {workspace?.plan || 'free'}
+              </Link>
+              <button
+                type="button"
+                className="text-left text-slate-500 hover:text-slate-800"
+                onClick={() => logout()}
+              >
+                Sign out
+              </button>
+            </div>
           </div>
         </aside>
 
@@ -190,6 +206,21 @@ export function AppShell() {
                 </div>
               </div>
               <div className="hidden flex-wrap justify-end gap-2 sm:flex">
+                <Badge
+                  tone={
+                    syncState === 'error' ? 'rose' : syncState === 'saving' ? 'amber' : syncState === 'saved' ? 'green' : 'slate'
+                  }
+                >
+                  {dealLoading
+                    ? 'Loading deal…'
+                    : syncState === 'saving'
+                      ? 'Saving…'
+                      : syncState === 'saved'
+                        ? 'Synced'
+                        : syncState === 'error'
+                          ? 'Sync error'
+                          : 'Ready'}
+                </Badge>
                 <Badge tone="blue">{deal.paymentTerms}</Badge>
                 <Badge tone={deal.unitPriceUsd ? 'green' : 'rose'}>
                   {deal.unitPriceUsd ? `FOB USD ${deal.unitPriceUsd}/kg` : 'Unit price empty'}

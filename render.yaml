@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: exporthub-api
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: CORS_ORIGINS
+        value: https://ujjwalt92.github.io
+      - key: DATA_DIR
+        value: /opt/render/project/src/server/data

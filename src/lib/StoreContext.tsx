@@ -1,4 +1,13 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
 import { createInitialDeal } from '../data/playbook'
 import type {
   ClarifyingQuestion,
@@ -16,12 +25,14 @@ import type {
   VendorOrder,
   VesselState,
 } from '../types'
-import { computeCostSummary } from './costing'
-
-const STORAGE_KEY = 'exporthub-first-deal-v5'
+import { useAuth } from './AuthContext'
+import { computeCostSummary, dealProgress } from './costing'
+import { saas } from './saas'
 
 interface Store {
   deal: DealData
+  dealLoading: boolean
+  syncState: 'idle' | 'saving' | 'saved' | 'error'
   setStage: (stage: DealStage) => void
   updateClarifying: (id: string, patch: Partial<ClarifyingQuestion>) => void
   updateCost: (id: string, patch: Partial<CostLine['money']> & { notes?: string }) => void
@@ -61,69 +72,56 @@ interface Store {
 
 const Ctx = createContext<Store | null>(null)
 
-function load(): DealData {
-  try {
-    // migrate away from older keys that can crash new screens
-    ;['exporthub-data-v1', 'exporthub-first-deal-v1', 'exporthub-first-deal-v2', 'exporthub-first-deal-v3'].forEach(
-      (k) => localStorage.removeItem(k),
-    )
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return createInitialDeal()
-    const parsed = JSON.parse(raw) as Partial<DealData>
-    const base = createInitialDeal()
-    const merged: DealData = {
-      ...base,
-      ...parsed,
-      company: { ...base.company, ...(parsed.company ?? {}) },
-      clarifying: parsed.clarifying ?? base.clarifying,
-      costs: parsed.costs ?? base.costs,
-      rules: base.rules,
-      documents: parsed.documents ?? base.documents,
-      lcChecks: parsed.lcChecks ?? base.lcChecks,
-      vendor: { ...base.vendor, ...(parsed.vendor ?? {}) },
-      production: {
-        ...base.production,
-        ...(parsed.production ?? {}),
-        tasks: parsed.production?.tasks ?? base.production.tasks,
-      },
-      dispatch: { ...base.dispatch, ...(parsed.dispatch ?? {}) },
-      customs: {
-        ...base.customs,
-        ...(parsed.customs ?? {}),
-        tasks: parsed.customs?.tasks ?? base.customs.tasks,
-      },
-      vessel: { ...base.vessel, ...(parsed.vessel ?? {}) },
-      payment: {
-        ...base.payment,
-        ...(parsed.payment ?? {}),
-        tasks: parsed.payment?.tasks ?? base.payment.tasks,
-      },
-      templates: base.templates,
-      glossary: base.glossary,
-      teaching: {
-        ...base.teaching,
-        ...(parsed.teaching ?? {}),
-        qualitySpecs: parsed.teaching?.qualitySpecs ?? base.teaching.qualitySpecs,
-        chaChecklist: parsed.teaching?.chaChecklist ?? base.teaching.chaChecklist,
-        bankDocMatches: parsed.teaching?.bankDocMatches ?? base.teaching.bankDocMatches,
-        incentives: parsed.teaching?.incentives ?? base.teaching.incentives,
-      },
-      onboarding: {
-        ...base.onboarding,
-        ...(parsed.onboarding ?? {}),
-        checklist:
-          parsed.onboarding?.checklist?.length
-            ? parsed.onboarding.checklist
-            : base.onboarding.checklist,
-      },
-    }
-    if (!merged.onboarding?.checklist?.length) {
-      merged.onboarding = base.onboarding
-    }
-    return merged
-  } catch {
-    return createInitialDeal()
+export function mergeDeal(parsed: Partial<DealData> | null | undefined): DealData {
+  const base = createInitialDeal()
+  if (!parsed || typeof parsed !== 'object') return base
+  const merged: DealData = {
+    ...base,
+    ...parsed,
+    company: { ...base.company, ...(parsed.company ?? {}) },
+    clarifying: parsed.clarifying ?? base.clarifying,
+    costs: parsed.costs ?? base.costs,
+    rules: base.rules,
+    documents: parsed.documents ?? base.documents,
+    lcChecks: parsed.lcChecks ?? base.lcChecks,
+    vendor: { ...base.vendor, ...(parsed.vendor ?? {}) },
+    production: {
+      ...base.production,
+      ...(parsed.production ?? {}),
+      tasks: parsed.production?.tasks ?? base.production.tasks,
+    },
+    dispatch: { ...base.dispatch, ...(parsed.dispatch ?? {}) },
+    customs: {
+      ...base.customs,
+      ...(parsed.customs ?? {}),
+      tasks: parsed.customs?.tasks ?? base.customs.tasks,
+    },
+    vessel: { ...base.vessel, ...(parsed.vessel ?? {}) },
+    payment: {
+      ...base.payment,
+      ...(parsed.payment ?? {}),
+      tasks: parsed.payment?.tasks ?? base.payment.tasks,
+    },
+    templates: base.templates,
+    glossary: base.glossary,
+    teaching: {
+      ...base.teaching,
+      ...(parsed.teaching ?? {}),
+      qualitySpecs: parsed.teaching?.qualitySpecs ?? base.teaching.qualitySpecs,
+      chaChecklist: parsed.teaching?.chaChecklist ?? base.teaching.chaChecklist,
+      bankDocMatches: parsed.teaching?.bankDocMatches ?? base.teaching.bankDocMatches,
+      incentives: parsed.teaching?.incentives ?? base.teaching.incentives,
+    },
+    onboarding: {
+      ...base.onboarding,
+      ...(parsed.onboarding ?? {}),
+      checklist: parsed.onboarding?.checklist?.length
+        ? parsed.onboarding.checklist
+        : base.onboarding.checklist,
+    },
   }
+  if (!merged.onboarding?.checklist?.length) merged.onboarding = base.onboarding
+  return merged
 }
 
 function patchDoc(
@@ -134,15 +132,85 @@ function patchDoc(
 }
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [deal, setDeal] = useState<DealData>(() => load())
+  const { activeDealId, user, refresh } = useAuth()
+  const [deal, setDeal] = useState<DealData>(() => createInitialDeal())
+  const [dealLoading, setDealLoading] = useState(false)
+  const [syncState, setSyncState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const loadedFor = useRef<string | null>(null)
+  const skipNextSave = useRef(false)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(deal))
-  }, [deal])
+    let cancelled = false
+    ;(async () => {
+      if (!user || !activeDealId) {
+        loadedFor.current = null
+        setDeal(createInitialDeal())
+        return
+      }
+      if (loadedFor.current === activeDealId) return
+      setDealLoading(true)
+      try {
+        const res = await saas.getDeal(activeDealId)
+        if (cancelled) return
+        const merged = mergeDeal(res.deal.data)
+        skipNextSave.current = true
+        setDeal(merged)
+        loadedFor.current = activeDealId
+        if (!res.deal.data) {
+          await saas.saveDeal(activeDealId, {
+            data: merged,
+            progressPct: dealProgress(merged).pct,
+          })
+          await refresh()
+        }
+      } catch {
+        if (!cancelled) {
+          skipNextSave.current = true
+          setDeal(createInitialDeal())
+        }
+      } finally {
+        if (!cancelled) setDealLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [activeDealId, user, refresh])
+
+  useEffect(() => {
+    if (!user || !activeDealId || dealLoading) return
+    if (loadedFor.current !== activeDealId) return
+    if (skipNextSave.current) {
+      skipNextSave.current = false
+      return
+    }
+    setSyncState('saving')
+    const handle = window.setTimeout(async () => {
+      try {
+        await saas.saveDeal(activeDealId, {
+          data: deal,
+          progressPct: dealProgress(deal).pct,
+          title: `${deal.productName.split(' ').slice(0, 3).join(' ')} · ${deal.buyerName || 'Buyer'}`,
+        })
+        setSyncState('saved')
+        await refresh()
+      } catch {
+        setSyncState('error')
+      }
+    }, 650)
+    return () => window.clearTimeout(handle)
+  }, [deal, activeDealId, user, dealLoading, refresh])
+
+  const resetDeal = useCallback(() => {
+    const next = createInitialDeal()
+    setDeal(next)
+  }, [])
 
   const value = useMemo<Store>(
     () => ({
       deal,
+      dealLoading,
+      syncState,
       setStage: (stage) => setDeal((d) => ({ ...d, stage })),
       updateClarifying: (id, patch) =>
         setDeal((d) => ({
@@ -298,52 +366,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         try {
           const parsed = JSON.parse(raw) as Partial<DealData>
           if (!parsed || typeof parsed !== 'object') return { ok: false, error: 'Invalid JSON' }
-          const base = createInitialDeal()
-          const next: DealData = {
-            ...base,
-            ...parsed,
-            company: { ...base.company, ...(parsed.company ?? {}) },
-            clarifying: parsed.clarifying ?? base.clarifying,
-            costs: parsed.costs ?? base.costs,
-            rules: base.rules,
-            documents: parsed.documents ?? base.documents,
-            lcChecks: parsed.lcChecks ?? base.lcChecks,
-            vendor: { ...base.vendor, ...(parsed.vendor ?? {}) },
-            production: {
-              ...base.production,
-              ...(parsed.production ?? {}),
-              tasks: parsed.production?.tasks ?? base.production.tasks,
-            },
-            dispatch: { ...base.dispatch, ...(parsed.dispatch ?? {}) },
-            customs: {
-              ...base.customs,
-              ...(parsed.customs ?? {}),
-              tasks: parsed.customs?.tasks ?? base.customs.tasks,
-            },
-            vessel: { ...base.vessel, ...(parsed.vessel ?? {}) },
-            payment: {
-              ...base.payment,
-              ...(parsed.payment ?? {}),
-              tasks: parsed.payment?.tasks ?? base.payment.tasks,
-            },
-            templates: base.templates,
-            glossary: base.glossary,
-            teaching: {
-              ...base.teaching,
-              ...(parsed.teaching ?? {}),
-              qualitySpecs: parsed.teaching?.qualitySpecs ?? base.teaching.qualitySpecs,
-              chaChecklist: parsed.teaching?.chaChecklist ?? base.teaching.chaChecklist,
-              bankDocMatches: parsed.teaching?.bankDocMatches ?? base.teaching.bankDocMatches,
-              incentives: parsed.teaching?.incentives ?? base.teaching.incentives,
-            },
-            onboarding: {
-              ...base.onboarding,
-              ...(parsed.onboarding ?? {}),
-              checklist: parsed.onboarding?.checklist ?? base.onboarding.checklist,
-            },
-          }
-          setDeal(next)
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+          setDeal(mergeDeal(parsed))
           return { ok: true }
         } catch (e) {
           return { ok: false, error: e instanceof Error ? e.message : 'Failed to import' }
@@ -434,13 +457,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             firc: d.payment.fircRef ? 'received' : 'in_progress',
           }),
         })),
-      resetDeal: () => {
-        const next = createInitialDeal()
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-        setDeal(next)
-      },
+      resetDeal,
     }),
-    [deal],
+    [deal, dealLoading, syncState, resetDeal],
   )
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>

@@ -82,20 +82,19 @@ export function LandingPage() {
               Close your first export deal without guessing the FOB rate.
             </h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-slate-600">
-              ExportHub is a guided operating system — not a generic ERP. It walks a new or small trader from
-              buyer inquiry to FIRC with cost discipline, LC checks, and shipment documents that look
-              professional.
+              ExportHub is now a full SaaS workspace — sign up, create deals, invite your team, upgrade plans, and
+              sync the First Deal playbook from inquiry to FIRC.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/workspace">
+              <Link to="/signup">
                 <Button size="lg" className="min-w-[10rem]">
-                  Open live workspace
+                  Start free SaaS workspace
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              <Link to="/pricing">
+              <Link to="/login">
                 <Button size="lg" variant="secondary">
-                  View pricing
+                  Sign in
                 </Button>
               </Link>
             </div>
@@ -128,9 +127,9 @@ export function LandingPage() {
                   <span className="text-xs text-teal-700">{b}</span>
                 </div>
               ))}
-              <Link to="/workspace" className="block">
+              <Link to="/signup" className="block">
                 <Button className="w-full" variant="dark">
-                  Enter deal cockpit
+                  Create account & open cockpit
                 </Button>
               </Link>
             </div>
@@ -220,8 +219,8 @@ export function LandingPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link to="/workspace">
-              <Button size="lg">Launch workspace</Button>
+            <Link to="/signup">
+              <Button size="lg">Create free workspace</Button>
             </Link>
             <Link to="/pricing">
               <Button size="lg" variant="secondary">
@@ -238,14 +237,14 @@ export function LandingPage() {
             <span className="font-semibold text-slate-800">ExportHub</span> · First Deal OS
           </div>
           <div className="flex gap-4">
-            <Link className="hover:text-slate-800" to="/workspace">
-              Workspace
+            <Link className="hover:text-slate-800" to="/app">
+              Dashboard
             </Link>
             <Link className="hover:text-slate-800" to="/pricing">
               Pricing
             </Link>
-            <Link className="hover:text-slate-800" to="/help">
-              Glossary
+            <Link className="hover:text-slate-800" to="/login">
+              Sign in
             </Link>
           </div>
         </div>
@@ -271,8 +270,11 @@ function MarketingNav() {
           <Link to="/pricing" className="hidden text-sm text-slate-600 hover:text-slate-900 sm:inline">
             Pricing
           </Link>
-          <Link to="/workspace">
-            <Button size="sm">Open app</Button>
+          <Link to="/login" className="hidden text-sm text-slate-600 hover:text-slate-900 sm:inline">
+            Sign in
+          </Link>
+          <Link to="/signup">
+            <Button size="sm">Start free</Button>
           </Link>
         </div>
       </div>

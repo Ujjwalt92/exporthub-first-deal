@@ -1,0 +1,4 @@
+# ExportHub API data
+data/
+*.db
+.env
