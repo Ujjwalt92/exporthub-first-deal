@@ -55,6 +55,17 @@ const groups: { title: string; items: { to: string; label: string; icon: typeof 
       ],
     },
     {
+      title: 'Deep training (gap-fill)',
+      items: [
+        { to: '/fob-math', label: '₹ → USD FOB Math', icon: ClipboardCheck },
+        { to: '/sample-lc', label: 'Sample LC Lab', icon: ScrollText },
+        { to: '/quality', label: 'Teja Quality Specs', icon: PackageCheck },
+        { to: '/cha-checklist', label: 'CHA / SB Packet', icon: FileSpreadsheet },
+        { to: '/bank-docs', label: 'Bank Docs Matcher', icon: Landmark },
+        { to: '/post-shipment', label: 'Post-shipment', icon: BookOpen },
+      ],
+    },
+    {
       title: 'Docs & Comms',
       items: [
         { to: '/documents', label: 'Document Map', icon: Map },

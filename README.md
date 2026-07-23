@@ -37,6 +37,14 @@ Not a generic ERP — a live guided deal for:
 - **Document Map + CI + Packing List**  
 - **Email Templates + Help/Glossary + Rules/Lesson**
 
+## Deep training (gap-fill layers)
+- **₹ → USD FOB Math** — convert ₹265/kg purchase into FOB USD quote
+- **Sample LC Lab** — clean vs error LC + amendment draft
+- **Teja Quality Specs** — moisture, stemless, broken, ASTA, pesticide
+- **CHA / SB Packet** — ICEGATE-oriented customs file checklist
+- **Bank Docs Matcher** — document set vs LC clauses (Rule 6)
+- **Post-shipment** — discrepancy playbook + RoDTEP/drawback/e-BRC tracking
+
 ## Run
 
 ```bash

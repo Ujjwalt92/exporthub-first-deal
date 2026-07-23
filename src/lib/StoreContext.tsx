@@ -18,7 +18,7 @@ import type {
 } from '../types'
 import { computeCostSummary } from './costing'
 
-const STORAGE_KEY = 'exporthub-first-deal-v3'
+const STORAGE_KEY = 'exporthub-first-deal-v4'
 
 interface Store {
   deal: DealData
@@ -38,6 +38,11 @@ interface Store {
   updateVessel: (patch: Partial<VesselState>) => void
   updatePayment: (patch: Partial<PaymentState>) => void
   updatePaymentTask: (id: string, patch: Partial<TaskItem>) => void
+  updateTeaching: (patch: Partial<DealData['teaching']>) => void
+  updateQualitySpec: (id: string, patch: Partial<DealData['teaching']['qualitySpecs'][number]>) => void
+  updateChaTask: (id: string, patch: Partial<TaskItem>) => void
+  updateBankDoc: (id: string, patch: Partial<DealData['teaching']['bankDocMatches'][number]>) => void
+  updateIncentive: (id: string, patch: Partial<DealData['teaching']['incentives'][number]>) => void
   applySuggestedUnitPrice: () => void
   markLcCleared: () => void
   confirmVendor: () => void
@@ -86,6 +91,14 @@ function load(): DealData {
       },
       templates: base.templates,
       glossary: base.glossary,
+      teaching: {
+        ...base.teaching,
+        ...(parsed.teaching ?? {}),
+        qualitySpecs: parsed.teaching?.qualitySpecs ?? base.teaching.qualitySpecs,
+        chaChecklist: parsed.teaching?.chaChecklist ?? base.teaching.chaChecklist,
+        bankDocMatches: parsed.teaching?.bankDocMatches ?? base.teaching.bankDocMatches,
+        incentives: parsed.teaching?.incentives ?? base.teaching.incentives,
+      },
     }
   } catch {
     return createInitialDeal()
@@ -192,6 +205,46 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           payment: {
             ...d.payment,
             tasks: d.payment.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+          },
+        })),
+      updateTeaching: (patch) =>
+        setDeal((d) => ({ ...d, teaching: { ...d.teaching, ...patch } })),
+      updateQualitySpec: (id, patch) =>
+        setDeal((d) => ({
+          ...d,
+          teaching: {
+            ...d.teaching,
+            qualitySpecs: d.teaching.qualitySpecs.map((q) =>
+              q.id === id ? { ...q, ...patch } : q,
+            ),
+          },
+        })),
+      updateChaTask: (id, patch) =>
+        setDeal((d) => ({
+          ...d,
+          teaching: {
+            ...d.teaching,
+            chaChecklist: d.teaching.chaChecklist.map((t) =>
+              t.id === id ? { ...t, ...patch } : t,
+            ),
+          },
+        })),
+      updateBankDoc: (id, patch) =>
+        setDeal((d) => ({
+          ...d,
+          teaching: {
+            ...d.teaching,
+            bankDocMatches: d.teaching.bankDocMatches.map((b) =>
+              b.id === id ? { ...b, ...patch } : b,
+            ),
+          },
+        })),
+      updateIncentive: (id, patch) =>
+        setDeal((d) => ({
+          ...d,
+          teaching: {
+            ...d.teaching,
+            incentives: d.teaching.incentives.map((i) => (i.id === id ? { ...i, ...patch } : i)),
           },
         })),
       applySuggestedUnitPrice: () =>

@@ -27,6 +27,9 @@ export function ProductionPage() {
         subtitle="Vendor confirm के बाद quality, packing और pickup readiness track करें। New traders: sample approve किए बिना bulk packing मत करवाएँ।"
         actions={
           <div className="flex flex-wrap gap-2">
+            <Link to="/quality">
+              <Button variant="secondary">Quality specs</Button>
+            </Link>
             <Link to="/vendor">
               <Button variant="secondary">Vendor</Button>
             </Link>

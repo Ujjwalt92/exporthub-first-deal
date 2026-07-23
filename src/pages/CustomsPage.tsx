@@ -16,6 +16,9 @@ export function CustomsPage() {
         subtitle="CHA + Shipping Bill + Phyto + COO (+ fumigation). LEO मिलने तक vessel cut-off पर panic मत करें — docs पहले।"
         actions={
           <div className="flex flex-wrap gap-2">
+            <Link to="/cha-checklist">
+              <Button variant="secondary">CHA / SB packet</Button>
+            </Link>
             <Link to="/dispatch">
               <Button variant="secondary">Dispatch</Button>
             </Link>

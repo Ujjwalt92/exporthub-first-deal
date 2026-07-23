@@ -197,6 +197,41 @@ export interface GlossaryTerm {
   tip: string
 }
 
+export interface QualitySpec {
+  id: string
+  parameter: string
+  target: string
+  actual: string
+  unit: string
+  whyItMatters: string
+  pass: boolean | null
+}
+
+export interface BankDocMatch {
+  id: string
+  documentName: string
+  lcClause: string
+  prepared: boolean
+  matchesLc: 'unchecked' | 'yes' | 'no'
+  note: string
+}
+
+export interface IncentiveItem {
+  id: string
+  name: string
+  status: 'not_applicable' | 'to_check' | 'applied' | 'received'
+  note: string
+}
+
+export interface TeachingExtras {
+  lcScenario: 'clean' | 'with_errors'
+  qualitySpecs: QualitySpec[]
+  chaChecklist: TaskItem[]
+  bankDocMatches: BankDocMatch[]
+  incentives: IncentiveItem[]
+  discrepancyPlaybookNote: string
+}
+
 export interface DealData {
   company: CompanyProfile
   companyName: string
@@ -245,6 +280,7 @@ export interface DealData {
   payment: PaymentState
   templates: EmailTemplate[]
   glossary: GlossaryTerm[]
+  teaching: TeachingExtras
 }
 
 export interface AppState {

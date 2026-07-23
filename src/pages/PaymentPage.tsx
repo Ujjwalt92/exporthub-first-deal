@@ -25,6 +25,12 @@ export function PaymentPage() {
         subtitle="Rule 6: Documents = Payment. LC वाले exact documents lodge करो, discrepancy आने पर तुरंत amend/correct करो।"
         actions={
           <div className="flex flex-wrap gap-2">
+            <Link to="/bank-docs">
+              <Button variant="secondary">Bank docs matcher</Button>
+            </Link>
+            <Link to="/post-shipment">
+              <Button variant="secondary">Post-shipment</Button>
+            </Link>
             <Link to="/documents">
               <Button variant="secondary">Document map</Button>
             </Link>

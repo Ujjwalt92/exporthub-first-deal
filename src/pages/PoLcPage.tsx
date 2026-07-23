@@ -25,6 +25,9 @@ export function PoLcPage() {
         subtitle="Buyer ने PI accept कर ली। असली export यहीं से शुरू होता है। Rule no. 5: LC पूरी तरह पढ़े बिना माल तैयार मत करो।"
         actions={
           <div className="flex flex-wrap gap-2">
+            <Link to="/sample-lc">
+              <Button variant="secondary">Sample LC lab</Button>
+            </Link>
             <Link to="/proforma">
               <Button variant="secondary">Back to PI</Button>
             </Link>

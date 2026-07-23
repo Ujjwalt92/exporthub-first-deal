@@ -14,6 +14,9 @@ export function CostSheetPage() {
         subtitle="Rule no. 1 + 2: जब तक हर required लाइन clear न हो, buyer को final price मत भेजो। हर खर्च Estimated → Quoted → Actual Paid।"
         actions={
           <div className="flex flex-wrap gap-2">
+            <Link to="/fob-math">
+              <Button variant="secondary">₹ → USD lesson</Button>
+            </Link>
             <Button
               variant="secondary"
               disabled={!summary.canSendFinalPrice}

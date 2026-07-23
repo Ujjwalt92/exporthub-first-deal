@@ -16,6 +16,7 @@ import type {
   VendorOrder,
   VesselState,
 } from '../types'
+import { createTeachingExtras } from './teaching'
 
 export const PLAYBOOK_RULES: PlaybookRule[] = [
   {
@@ -827,5 +828,6 @@ export function createInitialDeal(): DealData {
     payment: INITIAL_PAYMENT,
     templates: EMAIL_TEMPLATES,
     glossary: GLOSSARY,
+    teaching: createTeachingExtras(),
   }
 }
